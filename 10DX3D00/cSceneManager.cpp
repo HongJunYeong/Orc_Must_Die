@@ -35,6 +35,11 @@ void cSceneManager::AddScene(string sSceneName, cScene * pScene)
 	m_mapScene.insert(pair<string, cScene*>(sSceneName, pScene));
 }
 
+cScene * cSceneManager::GetCurrentScene()
+{
+	return m_pCurrScene;
+}
+
 void cSceneManager::Destroy()
 {
 	for each(auto p in m_mapScene)

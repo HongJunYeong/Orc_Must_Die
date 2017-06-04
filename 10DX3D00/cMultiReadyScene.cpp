@@ -243,7 +243,7 @@ void cMultiReadyScene::RefreshRoom()
 void cMultiReadyScene::OnClickReady()
 {
 
-	g_pNetworkManager->SetReady(true);
+	g_pNetworkManager->SetisReady(true);
 
 	ST_NETWORK stNet;
 	stNet.isReady = true;
@@ -267,6 +267,68 @@ void cMultiReadyScene::LogUpdate(string sLog)
 
 void cMultiReadyScene::RecvNetwork()
 {
+	SOCKET sock = g_pNetworkManager->GetSocket();
+	char szMsg[BUF_SIZE];
+
+	while (true)
+	{
+		int nStrLen = recv(sock, szMsg, sizeof(szMsg) - 1, 0);
+
+		szMsg[nStrLen] = 0;
+		ST_NETWORK* stNet = (ST_NETWORK*)&szMsg;
+
+		m_stNet.eNetType = stNet->eNetType;
+
+		switch (m_stNet.eNetType)
+		{
+		case E_SET_MY_NETWORK_ID:
+		{
+			g_pNetworkManager->SetNetId(stNet->nNetID);
+			g_pNetworkManager->SetisUsedNetwork(true);
+
+			ST_NETWORK stPlayer;
+			stPlayer.eNetType = E_NONE;
+
+			g_pNetworkManager->SetMyNetworkStruct(stPlayer);
+			g_pNetworkManager->SetisMineSetting(true);
+
+			cout << "[네트워크 ID] : " << g_pNetworkManager->GetNetId();
+		}
+		break;
+		case E_SET_OTHER_NETWORK_ID:
+		{
+			g_pNetworkManager->AddNetworkPlayer(*stNet);
+		}
+		break;
+		case E_REFRESH_WAITING_ROOM:
+		{
+			RefreshRoom();
+		}
+		break;
+		case E_READY:
+		{
+			for (int i = 0; i < g_pNetworkManager->GetNetworkPlayer().size(); i++)
+			{
+				if (g_pNetworkManager->GetNetworkPlayer()[i].nNetID == stNet->nNetID)
+				{
+					g_pNetworkManager->GetNetworkPlayer()[i].isReady = true;
+					break;
+				}
+			}
+			RefreshRoom();
+			cout << "[네트워크 ID] : " << stNet->nNetID << " 준비완료" << endl;
+		}
+		break;
+		case E_NETWORK_LOGOUT:
+		{
+			g_pNetworkManager->DeleteNetworkPlayer(stNet->nNetID);
+			RefreshRoom();
+		}
+		break;
+		}
+
+		m_stNet.eNetType = E_NONE;
+	}
 }
 
 unsigned int __stdcall RecvThread(LPVOID p)

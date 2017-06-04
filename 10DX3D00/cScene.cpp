@@ -50,3 +50,7 @@ void cScene::Release()
 {
 	m_pUIScreenChageImg->Destroy();
 }
+
+void cScene::StartRecvThread()
+{
+}

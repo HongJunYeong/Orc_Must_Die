@@ -70,92 +70,23 @@ void cNetworkManager::SetNetId(int nNetId)
 	m_nNetId = nNetId;
 }
 
+void cNetworkManager::SetisUsedNetwork(bool isUsedNetwork)
+{
+	m_isUsedNetwork = isUsedNetwork;
+}
+
 void cNetworkManager::SetServerIP(string sServerIP)
 {
 	m_sServerIP = sServerIP;
 }
 
-void cNetworkManager::SetReady(bool isReady)
+void cNetworkManager::SetisReady(bool isReady)
 {
 	m_stMine.isReady = isReady;
 }
 
 void cNetworkManager::RecvPoint()
 {
-	SOCKET sock = g_pNetworkManager->GetSocket();
-	char szMsg[BUF_SIZE];
-
-	while (true)
-	{
-		int n = 10;
-		int nStrLen = recv(sock, szMsg, sizeof(szMsg) - 1, 0);
-
-		szMsg[nStrLen] = 0;
-		ST_NETWORK* stNet = (ST_NETWORK*)&szMsg;
-
-		m_stMine.eNetType = stNet->eNetType;
-
-		switch (m_stMine.eNetType)
-		{
-		case E_SET_MY_NETWORK_ID:
-		{
-			g_pNetworkManager->SetNetId(stNet->nNetID);
-
-			ST_NETWORK stPlayer;
-			stPlayer.eNetType = E_NONE;
-			g_pNetworkManager->SetMyNetworkStruct(stPlayer);
-
-			m_isSettingMine = true;
-			m_isUsedNetwork = true;
-			cout << "[네트워크 ID] : " << g_pNetworkManager->GetNetId();
-		}
-		break;
-		case E_SET_OTHER_NETWORK_ID:
-		{
-			AddNetworkPlayer(*stNet);
-		}
-		break;
-		case E_REFRESH_WAITING_ROOM:
-		{
-			m_funcRefreshRoom();
-			//m_sLogin = stNet->sPlayerName + " 님이 입장 하셨습니다";
-			//m_funcRogUpdate(stNet->sPlayerName + " 님이 입장하셨습니다.");
-		}
-		break;
-		case E_READY:
-			for (int i = 0; i < m_vecPlayer.size(); i++)
-			{
-				if (m_vecPlayer[i].nNetID == stNet->nNetID)
-				{
-					m_vecPlayer[i].isReady = true;
-					break;
-				}
-			}
-			m_funcRefreshRoom();
-			cout << "[네트워크 ID] : "<< stNet->nNetID << " 준비완료" << endl;
-			break;
-		case E_NETWORK_LOGOUT:
-		{
-			vector<ST_NETWORK>::iterator iter = m_vecPlayer.begin();
-
-			for (iter; iter != m_vecPlayer.end();)
-			{
-				if ((*iter).nNetID == stNet->nNetID)
-					iter = m_vecPlayer.erase(iter);
-				else
-					iter++;
-			}
-
-			m_funcRefreshRoom();
-		}
-		break;
-		default:
-			break;
-		}
-
-		m_stMine.eNetType = E_NONE;
-	}
-	closesocket(sock);
 }
 
 void cNetworkManager::SetPlayerName(string name)
@@ -175,6 +106,15 @@ vector<ST_NETWORK>& cNetworkManager::GetNetworkPlayer()
 
 void cNetworkManager::DeleteNetworkPlayer(int nNetID)
 {
+	vector<ST_NETWORK>::iterator iter = m_vecPlayer.begin();
+
+	for (iter; iter != m_vecPlayer.end();)
+	{
+		if ((*iter).nNetID == nNetID)
+			iter = m_vecPlayer.erase(iter);
+		else
+			iter++;
+	}
 }
 
 void cNetworkManager::SetMyNetworkStruct(ST_NETWORK stNet)
@@ -204,6 +144,11 @@ ST_NETWORK & cNetworkManager::GetMine()
 bool cNetworkManager::GetisMineSetting()
 {
 	return m_isSettingMine;
+}
+
+bool cNetworkManager::GetisUsedNetwork()
+{
+	return m_isUsedNetwork;
 }
 
 void cNetworkManager::SetisMineSetting(bool isMine)

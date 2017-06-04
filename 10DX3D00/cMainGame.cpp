@@ -33,7 +33,7 @@ cMainGame::~cMainGame()
 	g_pObjectManager->Destroy();
 	g_pTextureManager->Destroy();
 	g_pSceneManager->Destroy();
-	//g_pNetworkManager->Destroy();
+	g_pNetworkManager->Destroy();
 }
 
 // >> : 

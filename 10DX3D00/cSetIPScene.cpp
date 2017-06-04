@@ -125,6 +125,9 @@ void cSetIPScene::OnClickNextScene()
 		return;
 	}
 
+	g_pSceneManager->SetCurrentScene("MultiReadyScene");
+	g_pSceneManager->GetCurrentScene()->StartRecvThread();
+
 	ST_NETWORK stNet;
 	stNet.eNetType = E_SET_MY_NETWORK_ID;
 	stNet.sPlayerName = g_pGameManager->GetPlayerName();
@@ -146,7 +149,6 @@ void cSetIPScene::OnClickNextScene()
 	stNet.eNetType = E_REFRESH_WAITING_ROOM;
 	send(g_pNetworkManager->GetSocket(), (char*)&stNet, sizeof(stNet), 0);
 	
-	g_pSceneManager->SetCurrentScene("MultiReadyScene");
 	
 }
 

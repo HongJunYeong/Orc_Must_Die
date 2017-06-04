@@ -21,5 +21,6 @@ public:
 	virtual void Update();
 	virtual void Render(LPD3DXSPRITE pSprite);
 	virtual void Release();
+	virtual void StartRecvThread();
 };
 

@@ -16,6 +16,7 @@ public:
 	void Render(LPD3DXSPRITE pSprite);
 	void SetCurrentScene(string sSceneName);
 	void AddScene(string sSceneName, cScene* pScene);
+	cScene* GetCurrentScene();
 	void Destroy();
 };
 

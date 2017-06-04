@@ -44,15 +44,17 @@ public:
 
 	//Get , Set
 	int GetNetId();
+	bool GetisMineSetting();
+	bool GetisUsedNetwork();
 	string GetServerIP();
 	string GetLogin();
 	ST_NETWORK&	GetMine();
-	bool GetisMineSetting();
 
-	void SetisMineSetting(bool isMine);
 	void SetNetId(int nNetId);
+	void SetisMineSetting(bool isMine);
+	void SetisReady(bool isReady);
+	void SetisUsedNetwork(bool isUsedNetwork);
 	void SetServerIP(string sServerIP);
-	void SetReady(bool isReady);
 
 public:
 	function<void()>		m_funcRefreshRoom;

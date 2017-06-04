@@ -25,11 +25,15 @@ private:
 	cUIObject*			m_pUIRoot;
 	cChatLog*			m_pLog;
 	HANDLE				m_hRecvThread;
+	ST_NETWORK			m_stNet;
 public:
 	virtual void Setup() override;
 	virtual void Update() override;
 	virtual void Render(LPD3DXSPRITE pSprite) override;
 	virtual void Release() override;
+
+	//쓰레드
+	virtual void StartRecvThread() override;
 
 
 	void Setup_UI();
@@ -37,8 +41,5 @@ public:
 	void OnClickReady();
 	void LogUpdate(string sLog);
 	void RecvNetwork();
-
-	//쓰레드
-	void __stdcall StartRecvThread();
 };
 
