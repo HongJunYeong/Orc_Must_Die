@@ -16,3 +16,9 @@ void cGameManager::SetPlayerName(string name)
 {
 	m_sPlayerName = name;
 }
+
+string cGameManager::GetPlayerName()
+{
+	return m_sPlayerName;
+}
+

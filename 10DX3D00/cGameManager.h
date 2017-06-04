@@ -9,8 +9,9 @@ public:
 private:
 	SINGLETONE(cGameManager);
 
-	string		m_sPlayerName;
+	string				m_sPlayerName;
 public:
 	void SetPlayerName(string name);
+	string GetPlayerName();
 };
 

@@ -9,6 +9,7 @@
 #include "cMenuScene.h"
 #include "cCharacterNameScene.h"
 #include "cSetIPScene.h"
+#include "cMultiReadyScene.h"
 // << :
 
 
@@ -32,6 +33,7 @@ cMainGame::~cMainGame()
 	g_pObjectManager->Destroy();
 	g_pTextureManager->Destroy();
 	g_pSceneManager->Destroy();
+	//g_pNetworkManager->Destroy();
 }
 
 // >> : 
@@ -92,6 +94,11 @@ void cMainGame::Setup()
 	cSetIPScene* pSetIPScene = new cSetIPScene;
 	pSetIPScene->Setup();
 	g_pSceneManager->AddScene("SetIPScene", pSetIPScene);
+
+	cMultiReadyScene* pMultiReadyScene = new cMultiReadyScene;
+	pMultiReadyScene->Setup();
+	g_pSceneManager->AddScene("MultiReadyScene", pMultiReadyScene);
+
 }
 
 void cMainGame::Update()

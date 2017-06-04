@@ -70,7 +70,7 @@ void cTitleScene::Setup_UI()
 {
 	cUIImageView* cTitleImage = new cUIImageView;
 	cTitleImage->SetPosition(0, 0);
-	cTitleImage->SetTexture("Image/TitleScene/banner.png");
+	cTitleImage->SetTexture("Image/TitleScene/banner.tga");
 
 	m_pUIRoot = cTitleImage;
 

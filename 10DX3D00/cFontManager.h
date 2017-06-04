@@ -10,6 +10,7 @@ public:
 		E_DEFAULT,
 		E_QUEST,
 		E_WOOD_DUG,
+		E_GODICK,
 	};
 
 private:

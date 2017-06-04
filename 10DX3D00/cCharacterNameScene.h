@@ -21,5 +21,6 @@ public:
 	void Setup_UI();
 
 	void OnClickNameSave();
+
 };
 

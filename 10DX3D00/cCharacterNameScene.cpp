@@ -80,7 +80,6 @@ void cCharacterNameScene::Setup_UI()
 	pNameText->SetFontType(cFontManager::E_WOOD_DUG);
 	pNameText->SetTag(10);
 
-
 	pBgImg->AddChild(pGoBtn);
 	pBgImg->AddChild(pBarImg);
 	pBgImg->AddChild(pNameText);

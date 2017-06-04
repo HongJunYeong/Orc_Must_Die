@@ -80,7 +80,7 @@ void cSetIPScene::Setup_UI()
 	pGoBtn->SetScaleMode(true);
 
 	cUITextView* pIPText = new cUITextView;
-	pIPText->SetText("접속할 서버의 IP주소를 적어주세요!");
+	pIPText->SetText("접속할 서버의 IP주소를 적어주세요.!");
 	pIPText->SetSize(ST_SIZEN(300, 200));
 	pIPText->SetPosition(500, 200);
 	pIPText->SetDrawTextFormat(DT_CENTER | DT_VCENTER | DT_WORDBREAK);
@@ -96,6 +96,13 @@ void cSetIPScene::Setup_UI()
 
 void cSetIPScene::OnClickNextScene()
 {
+	{
+		cUITextView* textView = (cUITextView*)m_pUIRoot->FindChildByTag(10);
+		textView->SetText("서버에 접속중입니다.!");
+	}
+
+	
+
 	char str[256];
 	GetWindowText(m_hNameEdit, str, 256);
 
@@ -106,14 +113,41 @@ void cSetIPScene::OnClickNextScene()
 	if (sIP == "")
 	{
 		cUITextView* textView = (cUITextView*)m_pUIRoot->FindChildByTag(10);
-		textView->SetText("접속할 서버의 IP를 반드시 입력해주세요!");
+		textView->SetText("접속할 서버의 IP를 반드시 입력해주세요.!");
 		return;
 	}
+
+	g_pNetworkManager->SetServerIP(sIP);
+	if (!g_pNetworkManager->Setup())
+	{
+		cUITextView* textView = (cUITextView*)m_pUIRoot->FindChildByTag(10);
+		textView->SetText("서버에 접속하실수 없습니다.!");
+		return;
+	}
+
+	ST_NETWORK stNet;
+	stNet.eNetType = E_SET_MY_NETWORK_ID;
+	stNet.sPlayerName = g_pGameManager->GetPlayerName();
+
+
+	send(g_pNetworkManager->GetSocket(), (char*)&stNet, sizeof(stNet), 0);
+
+	m_isSceneChange = true;
+	m_nScreenChangeAlpha = 255;
 
 	DestroyWindow(m_hNameEdit);
 	DeleteObject(m_hFont);
 
-	g_pNetworkManager->SetServerIP(sIP);
+	while (!g_pNetworkManager->GetisMineSetting())
+	{
+
+	}
+
+	stNet.eNetType = E_REFRESH_WAITING_ROOM;
+	send(g_pNetworkManager->GetSocket(), (char*)&stNet, sizeof(stNet), 0);
+	
+	g_pSceneManager->SetCurrentScene("MultiReadyScene");
+	
 }
 
 void cSetIPScene::OnClickPrevScene()

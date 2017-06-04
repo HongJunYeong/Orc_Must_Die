@@ -3,6 +3,8 @@
 class cUIObject;
 class cUIImageView;
 class cUIButton;
+class cUITextView;
+class cChatLog;
 
 class cScene
 {
