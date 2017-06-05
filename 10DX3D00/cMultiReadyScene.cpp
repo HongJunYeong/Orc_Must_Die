@@ -30,6 +30,10 @@ void cMultiReadyScene::Update()
 {
 	if (m_pUIRoot)
 		m_pUIRoot->Update();
+
+	if (m_pCurrReadyBtn)
+		m_pCurrReadyBtn->Update();
+
 	cScene::Update();
 }
 
@@ -37,6 +41,9 @@ void cMultiReadyScene::Render(LPD3DXSPRITE pSprite)
 {
 	if (m_pUIRoot)
 		m_pUIRoot->Render(pSprite);
+
+	if (m_pCurrReadyBtn)
+		m_pCurrReadyBtn->Render(pSprite);
 
 	cScene::Render(pSprite);
 
@@ -51,23 +58,17 @@ void cMultiReadyScene::Release()
 
 void cMultiReadyScene::Setup_UI()
 {
+	//Set UI Root
 	cUIImageView* pBGImg = new cUIImageView;
 	pBGImg->SetPosition(0, 0);
 	pBGImg->SetTexture("Image/MultiReadyScene/BG.png");
 
 	m_pUIRoot = pBGImg;
 
+	//Set Image View;
 	cUIImageView* pReadyBar = new cUIImageView;
 	pReadyBar->SetPosition(400, -10);
 	pReadyBar->SetTexture("Image/°ø¿ë/SmallBar2.dds");
-
-	cUIButton* pReadyBtn = new cUIButton;
-	pReadyBtn->SetPosition(490, -50);
-	pReadyBtn->SetTexture("Image/MultiReadyScene/ReadyBtnNor.dds",
-		"Image/MultiReadyScene/ReadyBtnSel.dds",
-		"Image/MultiReadyScene/ReadyBtnSel.dds");
-	pReadyBtn->SetScaleMode(true);
-	pReadyBtn->m_OnClick = bind(&cMultiReadyScene::OnClickReady, this);
 
 	cUIImageView* pUserInfoImg1 = new cUIImageView;
 	pUserInfoImg1->SetPosition(-30, 500);
@@ -85,6 +86,29 @@ void cMultiReadyScene::Setup_UI()
 	pUserInfoImg4->SetPosition(930, 500);
 	pUserInfoImg4->SetTexture("Image/MultiReadyScene/UserInfo.dds");
 
+	//Set Button
+
+	m_pReadyBtn = new cUIButton;
+	m_pReadyBtn->SetPosition(490, -50);
+	m_pReadyBtn->SetTexture("Image/MultiReadyScene/ReadyBtnNor.dds",
+		"Image/MultiReadyScene/ReadyBtnSel.dds",
+		"Image/MultiReadyScene/ReadyBtnSel.dds");
+	m_pReadyBtn->SetScaleMode(true);
+	m_pReadyBtn->m_OnClick = bind(&cMultiReadyScene::OnClickReady, this);
+
+	m_pCurrReadyBtn = m_pReadyBtn;
+
+	m_pRelieveReadyBtn = new cUIButton;
+	m_pRelieveReadyBtn->SetPosition(450, 0);
+	m_pRelieveReadyBtn->SetTexture("Image/MultiReadyScene/RelieveReadyBtnNor.dds",
+		"Image/MultiReadyScene/RelieveReadyBtnSel.dds",
+		"Image/MultiReadyScene/RelieveReadyBtnSel.dds");
+	m_pRelieveReadyBtn->SetScaleMode(true);
+	m_pRelieveReadyBtn->m_OnClick = bind(&cMultiReadyScene::OnClickRelieveReady, this);
+
+	m_pRelieveReadyBtn->Update();
+
+	//Set Text View
 	cUITextView* p1PText = new cUITextView;
 	p1PText->SetText("");
 	p1PText->SetSize(ST_SIZEN(300, 200));
@@ -157,8 +181,9 @@ void cMultiReadyScene::Setup_UI()
 	p4PReadyText->SetFontType(cFontManager::E_QUEST);
 	p4PReadyText->SetTag(E_TEXT_4P_READY);
 
+	//Add Child
 	pBGImg->AddChild(pReadyBar);
-	pBGImg->AddChild(pReadyBtn);
+	//pBGImg->AddChild(pReadyBtn);
 	pBGImg->AddChild(pUserInfoImg1);
 	pBGImg->AddChild(pUserInfoImg2);
 	pBGImg->AddChild(pUserInfoImg3);
@@ -252,6 +277,23 @@ void cMultiReadyScene::OnClickReady()
 	stNet.sPlayerName = g_pGameManager->GetPlayerName();
 
 	send(g_pNetworkManager->GetSocket(), (char*)&stNet, sizeof(stNet), 0);
+
+	m_pCurrReadyBtn = m_pRelieveReadyBtn;
+}
+
+void cMultiReadyScene::OnClickRelieveReady()
+{
+	g_pNetworkManager->SetisReady(false);
+
+	ST_NETWORK stNet;
+	stNet.isReady = false;
+	stNet.eNetType = E_READY;
+	stNet.nNetID = g_pNetworkManager->GetNetId();
+	stNet.sPlayerName = g_pGameManager->GetPlayerName();
+
+	send(g_pNetworkManager->GetSocket(), (char*)&stNet, sizeof(stNet), 0);
+
+	m_pCurrReadyBtn = m_pReadyBtn;
 }
 
 void cMultiReadyScene::StartRecvThread()
@@ -311,7 +353,7 @@ void cMultiReadyScene::RecvNetwork()
 			{
 				if (g_pNetworkManager->GetNetworkPlayer()[i].nNetID == stNet->nNetID)
 				{
-					g_pNetworkManager->GetNetworkPlayer()[i].isReady = true;
+					g_pNetworkManager->GetNetworkPlayer()[i].isReady = stNet->isReady;
 					break;
 				}
 			}

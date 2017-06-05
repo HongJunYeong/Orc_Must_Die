@@ -25,15 +25,20 @@ cMainGame::~cMainGame()
 	SAFE_DELETE(m_pCamera);
 	SAFE_DELETE(m_pGrid);
 
+	SAFE_RELEASE(m_pSprite);
+	SAFE_RELEASE(m_cursor);
+	SAFE_RELEASE(m_surf);
 
 	//매니저들 해제
+	g_pNetworkManager->Destroy();
+
 	g_pSoundManager->Destroy();
-	g_pDeviceManager->Destroy();
 	g_pFontManager->Destroy();
 	g_pObjectManager->Destroy();
 	g_pTextureManager->Destroy();
 	g_pSceneManager->Destroy();
-	g_pNetworkManager->Destroy();
+
+	g_pDeviceManager->Destroy();
 }
 
 // >> : 

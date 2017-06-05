@@ -21,8 +21,11 @@ private:
 		E_TEXT_4P_READY,
 	};
 
-
 	cUIObject*			m_pUIRoot;
+	cUIObject*			m_pCurrReadyBtn;
+	cUIButton*			m_pReadyBtn;
+	cUIButton*			m_pRelieveReadyBtn;
+
 	cChatLog*			m_pLog;
 	HANDLE				m_hRecvThread;
 	ST_NETWORK			m_stNet;
@@ -35,11 +38,16 @@ public:
 	//쓰레드
 	virtual void StartRecvThread() override;
 
+	//서버에서 데이터를 받을 함수
+	void RecvNetwork();
+
+	//On Click
+	void OnClickReady();
+	void OnClickRelieveReady();
 
 	void Setup_UI();
 	void RefreshRoom();
-	void OnClickReady();
+
 	void LogUpdate(string sLog);
-	void RecvNetwork();
 };
 
