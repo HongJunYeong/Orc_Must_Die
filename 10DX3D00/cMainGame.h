@@ -2,7 +2,6 @@
 
 // >> : 
 class cCamera; 
-class cGrid; 
 // << :
 
 class cMainGame
@@ -17,7 +16,6 @@ public:
 	
 private : 
 	cCamera*			m_pCamera; 
-	cGrid*				m_pGrid; 
 
 	LPD3DXSPRITE		m_pSprite;
 

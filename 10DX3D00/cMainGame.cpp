@@ -4,7 +4,6 @@
 
 // >> :
 #include "cCamera.h"
-#include "cGrid.h"
 #include "cTitleScene.h"
 #include "cMenuScene.h"
 #include "cCharacterNameScene.h"
@@ -15,7 +14,6 @@
 
 cMainGame::cMainGame()
 	: m_pCamera(NULL)
-	, m_pGrid(NULL)
 {
 }
 
@@ -23,7 +21,6 @@ cMainGame::cMainGame()
 cMainGame::~cMainGame()
 {
 	SAFE_DELETE(m_pCamera);
-	SAFE_DELETE(m_pGrid);
 
 	SAFE_RELEASE(m_pSprite);
 	SAFE_RELEASE(m_cursor);
@@ -60,9 +57,6 @@ void cMainGame::Setup()
 
 	m_pCamera = new cCamera;
 	m_pCamera->Setup(NULL);
-
-	m_pGrid = new cGrid;
-	m_pGrid->Setup();
 
 	// >>
 	g_pSoundManager->addSound(std::string("1"), std::string("S0455.mp3"), false, false);
@@ -138,7 +132,6 @@ void cMainGame::Render()
 	g_pD3DDevice->BeginScene();
 
 
-	//if (m_pGrid) m_pGrid->Render();
 	g_pSceneManager->Render(m_pSprite);
 
 
