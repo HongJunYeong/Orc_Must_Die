@@ -34,6 +34,8 @@ void cMultiReadyScene::Update()
 	if (m_pCurrReadyBtn)
 		m_pCurrReadyBtn->Update();
 
+	RefreshRoom();
+
 	cScene::Update();
 }
 
