@@ -4,7 +4,6 @@
 #include "cUIButton.h"
 #include "cUIImageView.h"
 #include "cUITextView.h"
-#include "cChatLog.h"
 
 unsigned int __stdcall RecvThread(LPVOID p);
 
@@ -22,7 +21,6 @@ void cMultiReadyScene::Setup()
 	Setup_UI();
 	g_pNetworkManager->m_funcRefreshRoom = bind(&cMultiReadyScene::RefreshRoom, this);
 	//g_pNetworkManager->m_funcRogUpdate = bind(&cMultiReadyScene::LogUpdate, this,placeholders::_1);
-	//m_pLog = NULL;
 	cScene::Setup();
 }
 
@@ -344,11 +342,11 @@ void cMultiReadyScene::RecvNetwork()
 			g_pNetworkManager->AddNetworkPlayer(*stNet);
 		}
 		break;
-		case E_REFRESH_WAITING_ROOM:
+		/*case E_REFRESH_WAITING_ROOM:
 		{
 			RefreshRoom();
 		}
-		break;
+		break;*/
 		case E_READY:
 		{
 			for (int i = 0; i < g_pNetworkManager->GetNetworkPlayer().size(); i++)

@@ -145,11 +145,6 @@ void cSetIPScene::OnClickNextScene()
 	{
 
 	}
-
-	stNet.eNetType = E_REFRESH_WAITING_ROOM;
-	send(g_pNetworkManager->GetSocket(), (char*)&stNet, sizeof(stNet), 0);
-	
-	
 }
 
 void cSetIPScene::OnClickPrevScene()
