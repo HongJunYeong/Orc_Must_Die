@@ -22,7 +22,7 @@ void cMultiReadyScene::Setup()
 	Setup_UI();
 	g_pNetworkManager->m_funcRefreshRoom = bind(&cMultiReadyScene::RefreshRoom, this);
 	//g_pNetworkManager->m_funcRogUpdate = bind(&cMultiReadyScene::LogUpdate, this,placeholders::_1);
-	m_pLog = NULL;
+	//m_pLog = NULL;
 	cScene::Setup();
 }
 
@@ -304,7 +304,7 @@ void cMultiReadyScene::StartRecvThread()
 
 void cMultiReadyScene::LogUpdate(string sLog)
 {
-	m_pLog->AddLOG(sLog);
+	//m_pLog->AddLOG(sLog);
 }
 
 void cMultiReadyScene::RecvNetwork()
