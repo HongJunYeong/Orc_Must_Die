@@ -5,6 +5,8 @@
 #include "cUIImageView.h"
 #include "cUITextView.h"
 
+#include "cStageOneScene.h"
+
 unsigned int __stdcall RecvThread(LPVOID p);
 
 cMultiReadyScene::cMultiReadyScene()
@@ -22,6 +24,8 @@ void cMultiReadyScene::Setup()
 	g_pNetworkManager->m_funcRefreshRoom = bind(&cMultiReadyScene::RefreshRoom, this);
 
 	m_isThreadClose = false;
+	m_isAllReady = false;
+	m_nReadyCount = 5;
 	//g_pNetworkManager->m_funcRogUpdate = bind(&cMultiReadyScene::LogUpdate, this,placeholders::_1);
 	cScene::Setup();
 }
@@ -35,6 +39,14 @@ void cMultiReadyScene::Update()
 		m_pCurrReadyBtn->Update();
 
 	RefreshRoom();
+
+	if(!m_isAllReady)
+		CheckReady();
+	else
+	{
+		m_pCurrReadyBtn = m_pCountText;
+		ChangeCount();
+	}
 
 	cScene::Update();
 }
@@ -117,6 +129,16 @@ void cMultiReadyScene::Setup_UI()
 	m_pRelieveReadyBtn->Update();
 
 	//Set Text View
+	m_pCountText = new cUITextView;
+	m_pCountText->SetText("5");
+	m_pCountText->SetSize(ST_SIZEN(300, 200));
+	m_pCountText->SetPosition(480, -50);
+	m_pCountText->SetDrawTextFormat(DT_CENTER | DT_VCENTER | DT_WORDBREAK);
+	m_pCountText->SetTextColor(D3DCOLOR_XRGB(255, 0, 0));
+	m_pCountText->SetFontType(cFontManager::E_QUEST);
+	m_pCountText->SetTag(E_TEXT_READY_COUNT);
+	m_pCountText->Update();
+
 	cUITextView* p1PText = new cUITextView;
 	p1PText->SetText("");
 	p1PText->SetSize(ST_SIZEN(300, 200));
@@ -242,9 +264,15 @@ void cMultiReadyScene::RefreshRoom()
 	}
 
 
+	int nPlayerCount = 0;
+
 	for (int i = 0; i < g_pNetworkManager->GetNetworkPlayer().size(); i++)
 	{
-		if (i == 0)
+		if (g_pNetworkManager->GetNetworkPlayer()[i].nNetID
+			== g_pNetworkManager->GetNetId())
+			continue;
+
+		if (nPlayerCount == 0)
 		{
 			view2->SetText(g_pNetworkManager->GetNetworkPlayer()[i].sPlayerName);
 			if (g_pNetworkManager->GetNetworkPlayer()[i].isReady)
@@ -252,7 +280,7 @@ void cMultiReadyScene::RefreshRoom()
 				viewReady2->SetText("READY");
 			}
 		}
-		if (i == 1)
+		if (nPlayerCount == 1)
 		{
 			view3->SetText(g_pNetworkManager->GetNetworkPlayer()[i].sPlayerName);
 			if (g_pNetworkManager->GetNetworkPlayer()[i].isReady)
@@ -260,7 +288,7 @@ void cMultiReadyScene::RefreshRoom()
 				viewReady3->SetText("READY");
 			}
 		}
-		if (i == 2)
+		if (nPlayerCount == 2)
 		{
 			view4->SetText(g_pNetworkManager->GetNetworkPlayer()[i].sPlayerName);
 			if (g_pNetworkManager->GetNetworkPlayer()[i].isReady)
@@ -268,9 +296,68 @@ void cMultiReadyScene::RefreshRoom()
 				viewReady4->SetText("READY");
 			}
 		}
+		nPlayerCount++;
 	}
 
 	//m_pLog->AddLOG(g_pNetworkManager->GetLogin());
+}
+
+void cMultiReadyScene::CheckReady()
+{
+	int nReadyCount = 0;
+
+	if (g_pNetworkManager->GetMine().isReady)
+		nReadyCount++;
+
+	for (int i = 0; i < g_pNetworkManager->GetNetworkPlayer().size(); i++)
+	{
+		if (g_pNetworkManager->GetNetworkPlayer()[i].nNetID
+			== g_pNetworkManager->GetNetId())
+			continue;
+
+		if (g_pNetworkManager->GetNetworkPlayer()[i].isReady)
+			nReadyCount++;
+	}
+
+	if (nReadyCount == 4)
+	{
+		m_isAllReady = true;
+		m_nCountStart = GetTickCount();
+		m_nCountEnd = GetTickCount() + 90;
+	}
+}
+
+void cMultiReadyScene::ChangeCount()
+{
+	m_nCountStart++;
+	if (m_nCountStart >= m_nCountEnd)
+	{
+		m_nCountEnd = m_nCountStart + 90;
+
+		m_nReadyCount--;
+
+		if (m_nReadyCount == 0)
+		{
+			m_isSceneChange = true;
+			m_nScreenChangeAlpha = 255;
+
+			if (TerminateThread(m_hRecvThread, 0))
+			{
+				CloseHandle(m_hRecvThread);
+			}
+
+			cStageOneScene* stageOneScene = new cStageOneScene;
+			stageOneScene->Setup();
+			g_pSceneManager->AddScene("StageOneScene", stageOneScene);
+			g_pSceneManager->SetCurrentScene("StageOneScene");
+			return;
+		}
+		else
+		{
+			char msg[100];
+			m_pCountText->SetText(_itoa(m_nReadyCount, msg, 10));
+		}
+	}
 }
 
 void cMultiReadyScene::OnClickReady()

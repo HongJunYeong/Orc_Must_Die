@@ -19,11 +19,13 @@ private:
 		E_TEXT_3P_READY,
 		E_TEXT_4P_NAME,
 		E_TEXT_4P_READY,
+		E_TEXT_READY_COUNT,
 	};
 
 	cUIObject*			m_pUIRoot;
 	cUIObject*			m_pCurrReadyBtn;
 	cUIButton*			m_pReadyBtn;
+	cUITextView*		m_pCountText;
 	cUIButton*			m_pRelieveReadyBtn;
 
 	//cChatLog*			m_pLog;
@@ -32,6 +34,11 @@ private:
 	ST_NETWORK			m_stNet;
 
 	bool				m_isThreadClose;
+	bool			    m_isAllReady;
+
+	int					m_nCountStart;
+	int					m_nCountEnd;
+	int					m_nReadyCount;
 public:
 	virtual void Setup() override;
 	virtual void Update() override;
@@ -51,6 +58,8 @@ public:
 
 	void Setup_UI();
 	void RefreshRoom();
+	void CheckReady();
+	void ChangeCount();
 
 	void LogUpdate(string sLog);
 };
