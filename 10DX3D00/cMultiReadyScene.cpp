@@ -401,6 +401,9 @@ void cMultiReadyScene::OnClickBack()
 		CloseHandle(m_hRecvThread);
 	}
 
+
+	g_pNetworkManager->SetisReady(false);
+
 	m_stNet.eNetType = E_NETWORK_LOGOUT;
 	m_stNet.sPlayerName = g_pGameManager->GetPlayerName();
 	m_stNet.nNetID = g_pNetworkManager->GetNetId();
