@@ -323,6 +323,8 @@ void cMultiReadyScene::OnClickBack()
 	closesocket(g_pNetworkManager->GetSocket());
 	WSACleanup();
 
+	g_pNetworkManager->GetNetworkPlayer().clear();
+
 	m_isThreadClose = false;
 	g_pSceneManager->SetCurrentScene("SetIPScene");
 }

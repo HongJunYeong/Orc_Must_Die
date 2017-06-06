@@ -96,13 +96,6 @@ void cSetIPScene::Setup_UI()
 
 void cSetIPScene::OnClickNextScene()
 {
-	{
-		cUITextView* textView = (cUITextView*)m_pUIRoot->FindChildByTag(10);
-		textView->SetText("서버에 접속중입니다.!");
-	}
-
-	
-
 	char str[256];
 	GetWindowText(m_hNameEdit, str, 256);
 
