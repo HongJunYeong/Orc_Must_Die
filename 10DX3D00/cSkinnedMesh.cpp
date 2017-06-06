@@ -87,7 +87,7 @@ void cSkinnedMesh::Update(LPD3DXFRAME pFrame, LPD3DXFRAME pParent)
 	}
 }
 
-void cSkinnedMesh::Render(LPD3DXFRAME pFrame, D3DXVECTOR3 s, D3DXVECTOR3 t)
+void cSkinnedMesh::Render(LPD3DXFRAME pFrame, D3DXVECTOR3 vScale)
 {
 	D3DXMATRIXA16 matWorld, matS, matT;
 	D3DXMatrixIdentity(&matWorld);
@@ -102,10 +102,9 @@ void cSkinnedMesh::Render(LPD3DXFRAME pFrame, D3DXVECTOR3 s, D3DXVECTOR3 t)
 		ST_BONE_MESH* pBoneMesh = (ST_BONE_MESH*)pBone->pMeshContainer;
 		if (pBoneMesh->MeshData.pMesh)
 		{
-			D3DXMatrixScaling(&matS, s.x, s.y, s.z);
-			D3DXMatrixTranslation(&matT, t.x, t.y, t.z);
+			D3DXMatrixScaling(&matS, vScale.x, vScale.y, vScale.z);
 
-			matWorld = matS * matT * pBone->CombinedTransformationMatrix;
+			matWorld = matS * pBone->CombinedTransformationMatrix;
 
 			g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
 
@@ -120,12 +119,12 @@ void cSkinnedMesh::Render(LPD3DXFRAME pFrame, D3DXVECTOR3 s, D3DXVECTOR3 t)
 
 	if (pFrame->pFrameFirstChild)
 	{
-		Render(pFrame->pFrameFirstChild, s, t);
+		Render(pFrame->pFrameFirstChild, vScale);
 	}
 
 	if (pFrame->pFrameSibling)
 	{
-		Render(pFrame->pFrameSibling, s, t);
+		Render(pFrame->pFrameSibling, vScale);
 	}
 }
 

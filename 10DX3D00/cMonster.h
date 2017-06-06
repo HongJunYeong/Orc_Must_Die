@@ -21,10 +21,13 @@ protected:
 	cSkinnedMesh*		m_pSkinnedMesh;
 	eMonsterState		m_eMonsterState;
 
+	D3DXVECTOR3			m_vPosition;
+	D3DXVECTOR3			m_vDirection;
+
 	HANDLE				m_hPathThread;
 
+	float				m_fRotY;
 	bool				m_isDie;
-
 public:
 	virtual void Setup();
 	virtual void Update();

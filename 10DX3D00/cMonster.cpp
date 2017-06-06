@@ -18,6 +18,10 @@ void cMonster::Setup()
 	m_hPathThread = NULL;
 	m_eMonsterState = E_IDLE;
 
+	m_vPosition = D3DXVECTOR3(0, 0, 0);
+	m_vPosition = D3DXVECTOR3(0, 0, 1.0f);
+	
+	m_fRotY = 0.0f;
 	m_isDie = false;
 }
 
