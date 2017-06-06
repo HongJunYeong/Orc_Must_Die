@@ -28,7 +28,10 @@ private:
 
 	//cChatLog*			m_pLog;
 	HANDLE				m_hRecvThread;
+	DWORD				m_dwThreadID;
 	ST_NETWORK			m_stNet;
+
+	bool				m_isThreadClose;
 public:
 	virtual void Setup() override;
 	virtual void Update() override;
@@ -44,6 +47,7 @@ public:
 	//On Click
 	void OnClickReady();
 	void OnClickRelieveReady();
+	void OnClickBack();
 
 	void Setup_UI();
 	void RefreshRoom();

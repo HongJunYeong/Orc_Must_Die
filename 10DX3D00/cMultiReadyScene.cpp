@@ -20,6 +20,8 @@ void cMultiReadyScene::Setup()
 {
 	Setup_UI();
 	g_pNetworkManager->m_funcRefreshRoom = bind(&cMultiReadyScene::RefreshRoom, this);
+
+	m_isThreadClose = false;
 	//g_pNetworkManager->m_funcRogUpdate = bind(&cMultiReadyScene::LogUpdate, this,placeholders::_1);
 	cScene::Setup();
 }
@@ -87,6 +89,12 @@ void cMultiReadyScene::Setup_UI()
 	pUserInfoImg4->SetTexture("Image/MultiReadyScene/UserInfo.dds");
 
 	//Set Button
+	cUIButton* pBackBtn = new cUIButton;
+	pBackBtn->SetPosition(-20, -50);
+	pBackBtn->SetTexture("Image/공용/BackBtnNor.dds",
+		"Image/공용/BackBtnSel.dds",
+		"Image/공용/BackBtnSel.dds");
+	pBackBtn->m_OnClick = bind(&cMultiReadyScene::OnClickBack, this);
 
 	m_pReadyBtn = new cUIButton;
 	m_pReadyBtn->SetPosition(490, -50);
@@ -183,7 +191,7 @@ void cMultiReadyScene::Setup_UI()
 
 	//Add Child
 	pBGImg->AddChild(pReadyBar);
-	//pBGImg->AddChild(pReadyBtn);
+	pBGImg->AddChild(pBackBtn);
 	pBGImg->AddChild(pUserInfoImg1);
 	pBGImg->AddChild(pUserInfoImg2);
 	pBGImg->AddChild(pUserInfoImg3);
@@ -296,10 +304,33 @@ void cMultiReadyScene::OnClickRelieveReady()
 	m_pCurrReadyBtn = m_pReadyBtn;
 }
 
+void cMultiReadyScene::OnClickBack()
+{
+	m_isSceneChange = true;
+	m_nScreenChangeAlpha = 255;
+
+	if (TerminateThread(m_hRecvThread, 0))
+	{
+		CloseHandle(m_hRecvThread);
+	}
+
+	m_stNet.eNetType = E_NETWORK_LOGOUT;
+	m_stNet.sPlayerName = g_pGameManager->GetPlayerName();
+	m_stNet.nNetID = g_pNetworkManager->GetNetId();
+
+	send(g_pNetworkManager->GetSocket() , (char*)&m_stNet, sizeof(m_stNet), 0);
+
+	closesocket(g_pNetworkManager->GetSocket());
+	WSACleanup();
+
+	m_isThreadClose = false;
+	g_pSceneManager->SetCurrentScene("SetIPScene");
+}
+
 void cMultiReadyScene::StartRecvThread()
 {
-	int nThreadId = 1;
-	m_hRecvThread = (HANDLE)_beginthreadex(NULL, 0, RecvThread, this, 0, (unsigned*)&nThreadId);
+	int nThreadID = 1;
+	m_hRecvThread = (HANDLE)_beginthreadex(NULL, 0, RecvThread, this, 0, (unsigned int*)&nThreadID);
 }
 
 void cMultiReadyScene::LogUpdate(string sLog)
@@ -314,6 +345,9 @@ void cMultiReadyScene::RecvNetwork()
 
 	while (true)
 	{
+		if (m_isThreadClose)
+			break;
+
 		int nStrLen = recv(sock, szMsg, sizeof(szMsg) - 1, 0);
 
 		szMsg[nStrLen] = 0;
@@ -342,11 +376,6 @@ void cMultiReadyScene::RecvNetwork()
 			g_pNetworkManager->AddNetworkPlayer(*stNet);
 		}
 		break;
-		/*case E_REFRESH_WAITING_ROOM:
-		{
-			RefreshRoom();
-		}
-		break;*/
 		case E_READY:
 		{
 			for (int i = 0; i < g_pNetworkManager->GetNetworkPlayer().size(); i++)

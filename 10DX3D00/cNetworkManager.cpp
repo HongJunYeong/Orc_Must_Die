@@ -58,11 +58,11 @@ void cNetworkManager::Destroy()
 		send(m_socket, (char*)&stNet, sizeof(stNet), 0);
 	}
 
-	Sleep(3000);
+	Sleep(500);
 
+	CloseHandle(m_hRecvThread);
 	closesocket(m_socket);
 	WSACleanup();
-	CloseHandle(m_hRecvThread);
 }
 
 void cNetworkManager::SetNetId(int nNetId)
