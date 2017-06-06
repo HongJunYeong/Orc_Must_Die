@@ -14,13 +14,12 @@ protected:
 	float	m_fBlendTime;
 	float	m_fPassedBlendTime;
 	bool	m_isAnimBlend;
-
 	//	<<:
 public:
 	void Setup(char* szFolder, char* szFile);
 	void Update();
 	void Update(LPD3DXFRAME pFrame, LPD3DXFRAME pParent);
-	void Render(LPD3DXFRAME pFrame);
+	void Render(LPD3DXFRAME pFrame, D3DXVECTOR3 s, D3DXVECTOR3 t);
 	void SetupBoneMatrixPtrs(LPD3DXFRAME pFrame);
 	void UpdateSkinnedMesh(LPD3DXFRAME pFrame);
 
