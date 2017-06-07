@@ -1,9 +1,12 @@
 #include "stdafx.h"
 #include "cGameManager.h"
 
+#include "cMonster.h"
+#include "cTile.h"
 
 cGameManager::cGameManager()
 	:m_sPlayerName("")
+	,m_pStageOneTile(NULL)
 {
 }
 
@@ -24,6 +27,5 @@ string cGameManager::GetPlayerName()
 
 void cGameManager::StageOneSetup()
 {
-
 }
 
