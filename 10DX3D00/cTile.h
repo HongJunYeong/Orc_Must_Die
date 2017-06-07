@@ -18,7 +18,7 @@ private:
 	std::vector<cPyramid*>	m_vecPyramid;
 
 public:
-	void Setup(int nTileNum, float fInterval, char* szFullPath);
+	void Setup(int nTileNum, float fInterval);
 	void Render();
 	vector<ST_PNT_VERTEX>& GetVertex() { return m_vecVertex; }
 	vector<ST_TILE_INFO>& GetTileInfo() { return m_stTileInfo; }

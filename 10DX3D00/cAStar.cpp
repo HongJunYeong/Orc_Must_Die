@@ -54,6 +54,8 @@ vector<D3DXVECTOR3> cAStar::FindPath(ST_TILE_INFO* Start, ST_TILE_INFO* End, vec
 	m_vecDest.clear();
 	m_vecTile.clear();
 
+	m_vecDest.push_back(End->vecCenter);
+
 	m_vecTile = vecTile;
 
 	//cTile* pStartTile = FindTile(cTile::E_START);
@@ -155,7 +157,7 @@ void cAStar::MarkNodeType(ST_TILE_INFO* startTile, ST_TILE_INFO* endTile)
 		else
 		{
 			pTemp->aStarType = ST_TILE_INFO::PATH;
-			m_vecDest.push_back(D3DXVECTOR3(pTemp->vecCenter[0],0, pTemp->vecCenter[2]));
+			m_vecDest.push_back(pTemp->vecCenter);
 		}
 		pTemp = pTemp->pParent;
 	}

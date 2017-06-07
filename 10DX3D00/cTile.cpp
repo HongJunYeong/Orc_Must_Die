@@ -88,24 +88,6 @@ void cTile::Setup(int nTileNum, float fInterval)
 		m_vecVertex[i + 1].n = n;
 		m_vecVertex[i + 2].n = n;
 	}
-
-	cPyramid* pPyramid = NULL;
-	D3DXMATRIXA16 matR;
-
-	pPyramid = new cPyramid;
-	D3DXMatrixRotationZ(&matR, D3DX_PI / 2.0f);
-	pPyramid->Setup(D3DCOLOR_XRGB(255, 0, 0), matR);
-	m_vecPyramid.push_back(pPyramid);
-
-	pPyramid = new cPyramid;
-	D3DXMatrixRotationZ(&matR, D3DX_PI);
-	pPyramid->Setup(D3DCOLOR_XRGB(0, 255, 0), matR);
-	m_vecPyramid.push_back(pPyramid);
-
-	pPyramid = new cPyramid;
-	D3DXMatrixRotationX(&matR, -D3DX_PI / 2.0f);
-	pPyramid->Setup(D3DCOLOR_XRGB(0, 0, 255), matR);
-	m_vecPyramid.push_back(pPyramid);
 }
 
 void cTile::Render()
