@@ -1,6 +1,7 @@
 #pragma once
 
 class cSkinnedMesh;
+class cAStar;
 
 class cMonster
 {
@@ -21,6 +22,12 @@ protected:
 	cSkinnedMesh*		m_pSkinnedMesh;
 	eMonsterState		m_eMonsterState;
 
+	//astar
+	cAStar*				m_pAStar;
+	ST_TILE_INFO		m_stEndTile;
+	vector<D3DXVECTOR3>	m_vecDest;
+	int					m_nPrevStart;
+
 	D3DXVECTOR3			m_vPosition;
 	D3DXVECTOR3			m_vDirection;
 
@@ -32,6 +39,7 @@ public:
 	virtual void Setup();
 	virtual void Update();
 	virtual void Render();
+	virtual void Release();
 	virtual void StartThread();
 	virtual void FindPath();
 };
