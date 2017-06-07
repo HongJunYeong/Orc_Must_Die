@@ -25,6 +25,11 @@ string cGameManager::GetPlayerName()
 	return m_sPlayerName;
 }
 
+cTile * cGameManager::GetStageOneTile()
+{
+	return m_pStageOneTile;
+}
+
 void cGameManager::StageOneSetup()
 {
 }

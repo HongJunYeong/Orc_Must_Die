@@ -19,6 +19,7 @@ private:
 public:
 	void SetPlayerName(string name);
 	string GetPlayerName();
+	cTile* GetStageOneTile();
 
 	void StageOneSetup();
 };
