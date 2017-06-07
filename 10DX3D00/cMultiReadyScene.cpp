@@ -6,6 +6,7 @@
 #include "cUITextView.h"
 
 #include "cStageOneScene.h"
+#include "cChatLog.h"
 
 unsigned int __stdcall RecvThread(LPVOID p);
 
@@ -26,6 +27,8 @@ void cMultiReadyScene::Setup()
 	m_isThreadClose = false;
 	m_isAllReady = false;
 	m_nReadyCount = 5;
+
+	m_pLog = new cChatLog;
 	//g_pNetworkManager->m_funcRogUpdate = bind(&cMultiReadyScene::LogUpdate, this,placeholders::_1);
 	cScene::Setup();
 }
@@ -48,6 +51,8 @@ void cMultiReadyScene::Update()
 		ChangeCount();
 	}
 
+	m_pLog->Update();
+
 	cScene::Update();
 }
 
@@ -59,15 +64,15 @@ void cMultiReadyScene::Render(LPD3DXSPRITE pSprite)
 	if (m_pCurrReadyBtn)
 		m_pCurrReadyBtn->Render(pSprite);
 
-	cScene::Render(pSprite);
+	m_pLog->Render(pSprite);
 
-	//m_pLog->Render(pSprite);
+	cScene::Render(pSprite);
 }
 
 void cMultiReadyScene::Release()
 {
 	m_pUIRoot->Destroy();
-	//m_pLog->Destroy();
+	m_pLog->Destroy();
 }
 
 void cMultiReadyScene::Setup_UI()
@@ -401,7 +406,6 @@ void cMultiReadyScene::OnClickBack()
 		CloseHandle(m_hRecvThread);
 	}
 
-
 	g_pNetworkManager->SetisReady(false);
 
 	m_stNet.eNetType = E_NETWORK_LOGOUT;
@@ -410,10 +414,14 @@ void cMultiReadyScene::OnClickBack()
 
 	send(g_pNetworkManager->GetSocket() , (char*)&m_stNet, sizeof(m_stNet), 0);
 
+	Sleep(100);
+
 	closesocket(g_pNetworkManager->GetSocket());
 	WSACleanup();
 
 	g_pNetworkManager->GetNetworkPlayer().clear();
+	g_pNetworkManager->SetisMineSetting(false);
+	g_pNetworkManager->SetisUsedNetwork(false);
 
 	m_isThreadClose = false;
 	g_pSceneManager->SetCurrentScene("SetIPScene");
@@ -460,12 +468,20 @@ void cMultiReadyScene::RecvNetwork()
 			g_pNetworkManager->SetMyNetworkStruct(stPlayer);
 			g_pNetworkManager->SetisMineSetting(true);
 
-			cout << "[³×Æ®¿öÅ© ID] : " << g_pNetworkManager->GetNetId();
+			//cout << "[³×Æ®¿öÅ© ID] : " << g_pNetworkManager->GetNetId();
+
+
+			m_pLog->AddLOG(g_pGameManager->GetPlayerName() + " ´ÔÀÌ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
 		}
 		break;
 		case E_SET_OTHER_NETWORK_ID:
 		{
 			g_pNetworkManager->AddNetworkPlayer(*stNet);
+
+			if (g_pNetworkManager->GetisMineSetting())
+			{
+				m_pLog->AddLOG(stNet->sPlayerName + " ´ÔÀÌ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
+			}
 		}
 		break;
 		case E_READY:

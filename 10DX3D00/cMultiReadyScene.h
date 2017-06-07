@@ -28,7 +28,7 @@ private:
 	cUITextView*		m_pCountText;
 	cUIButton*			m_pRelieveReadyBtn;
 
-	//cChatLog*			m_pLog;
+	cChatLog*			m_pLog;
 	HANDLE				m_hRecvThread;
 	DWORD				m_dwThreadID;
 	ST_NETWORK			m_stNet;

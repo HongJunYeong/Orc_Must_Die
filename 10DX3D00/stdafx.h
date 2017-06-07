@@ -178,6 +178,7 @@ struct ST_TILE_INFO
 	RECT			rc;
 	D3DXVECTOR3		vecCenter;
 	ST_TILE_INFO*	pParent;
+
 	ST_TILE_INFO() :idX(-1), idY(-1), type(NONE) {}
 };
 
