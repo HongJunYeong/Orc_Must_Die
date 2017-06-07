@@ -102,10 +102,10 @@ void cMainGame::Setup()
 
 void cMainGame::Update()
 {
+	g_pTimeManager->Update();
+	g_pSceneManager->Update();
 
 	if (m_pCamera) m_pCamera->Update();
-
-	g_pSceneManager->Update();
 
 	//if (g_pKeyManager->isOnceKeyDown('A'))
 	//{
