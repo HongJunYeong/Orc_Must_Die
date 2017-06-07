@@ -27,6 +27,9 @@ void cSetIPScene::Update()
 	if (m_pUIRoot)
 		m_pUIRoot->Update();
 
+	if (g_pKeyManager->isOnceKeyDown(VK_RETURN))
+		OnClickNextScene();
+
 	cScene::Update();
 }
 
