@@ -423,6 +423,8 @@ void cMultiReadyScene::OnClickBack()
 	g_pNetworkManager->SetisMineSetting(false);
 	g_pNetworkManager->SetisUsedNetwork(false);
 
+	m_pLog->Destroy();
+
 	m_isThreadClose = false;
 	g_pSceneManager->SetCurrentScene("SetIPScene");
 }
@@ -471,7 +473,7 @@ void cMultiReadyScene::RecvNetwork()
 			//cout << "[³×Æ®¿öÅ© ID] : " << g_pNetworkManager->GetNetId();
 
 
-			m_pLog->AddLOG(g_pGameManager->GetPlayerName() + " ´ÔÀÌ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
+			m_pLog->AddLOG("[" + g_pGameManager->GetPlayerName() + "]" + " ´ÔÀÌ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
 		}
 		break;
 		case E_SET_OTHER_NETWORK_ID:
@@ -480,7 +482,7 @@ void cMultiReadyScene::RecvNetwork()
 
 			if (g_pNetworkManager->GetisMineSetting())
 			{
-				m_pLog->AddLOG(stNet->sPlayerName + " ´ÔÀÌ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
+				m_pLog->AddLOG("[" + stNet->sPlayerName + "]" + " ´ÔÀÌ ÀÔÀåÇÏ¼Ì½À´Ï´Ù.");
 			}
 		}
 		break;
@@ -501,6 +503,7 @@ void cMultiReadyScene::RecvNetwork()
 		case E_NETWORK_LOGOUT:
 		{
 			g_pNetworkManager->DeleteNetworkPlayer(stNet->nNetID);
+			m_pLog->AddLOG("[" + stNet->sPlayerName + "]" + " ´ÔÀÌ ÅðÀåÇÏ¼Ì½À´Ï´Ù.");
 			RefreshRoom();
 		}
 		break;

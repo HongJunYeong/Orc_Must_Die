@@ -32,6 +32,8 @@ void cChatLog::Destroy()
 {
 	for each(cUITextView* p in m_vecLog)
 		p->Destroy();
+
+	m_vecLog.clear();
 }
 
 void cChatLog::AddLOG(string sLog)
@@ -42,7 +44,7 @@ void cChatLog::AddLOG(string sLog)
 	}
 
 	cUITextView* pLog = new cUITextView;
-	pLog->SetPosition(0, 400);
+	pLog->SetPosition(30, 400);
 	pLog->SetText(sLog);
 	pLog->SetSize(ST_SIZEN(700, 200));
 	pLog->SetDrawTextFormat(DT_LEFT | DT_VCENTER | DT_WORDBREAK);
