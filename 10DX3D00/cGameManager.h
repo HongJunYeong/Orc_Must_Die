@@ -12,7 +12,7 @@ private:
 	SINGLETONE(cGameManager);
 
 	string				m_sPlayerName;
-	vector<cMonster>	m_vecMonster;
+	vector<cMonster*>	m_vecMonster;
 public:
 	void SetPlayerName(string name);
 	string GetPlayerName();

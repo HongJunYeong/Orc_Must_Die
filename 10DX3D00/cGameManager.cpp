@@ -22,3 +22,8 @@ string cGameManager::GetPlayerName()
 	return m_sPlayerName;
 }
 
+void cGameManager::StageOneSetup()
+{
+
+}
+
