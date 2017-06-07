@@ -324,20 +324,20 @@ void cMultiReadyScene::CheckReady()
 			nReadyCount++;
 	}
 
-	if (nReadyCount == 4)
+	if (nReadyCount == 2)
 	{
 		m_isAllReady = true;
 		m_nCountStart = GetTickCount();
-		m_nCountEnd = GetTickCount() + 90;
+		m_nCountEnd = GetTickCount() + 1000;
 	}
 }
 
 void cMultiReadyScene::ChangeCount()
 {
-	m_nCountStart++;
+	m_nCountStart = GetTickCount();
 	if (m_nCountStart >= m_nCountEnd)
 	{
-		m_nCountEnd = m_nCountStart + 90;
+		m_nCountEnd = m_nCountStart + 1000;
 
 		m_nReadyCount--;
 
@@ -353,6 +353,7 @@ void cMultiReadyScene::ChangeCount()
 
 			cStageOneScene* stageOneScene = new cStageOneScene;
 			stageOneScene->Setup();
+			g_pGameManager->StageOneSetup();
 			g_pSceneManager->AddScene("StageOneScene", stageOneScene);
 			g_pSceneManager->SetCurrentScene("StageOneScene");
 			return;

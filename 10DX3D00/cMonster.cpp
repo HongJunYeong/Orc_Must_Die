@@ -70,6 +70,7 @@ void cMonster::FindPath()
 		if (FindPathStartTime >= FindPathEndTime)
 		{
 			FindPathEndTime = FindPathStartTime + 1000;
+			m_vecDest.clear();
 
 			vector<ST_TILE_INFO> vecTile
 				= g_pGameManager->GetStageOneTile()->GetTileInfoValue();
@@ -78,8 +79,6 @@ void cMonster::FindPath()
 
 			g_pGameManager->GetStageOneTile()->GetTileInfo()[m_nPrevStart].type = ST_TILE_INFO::NONE;
 			g_pGameManager->GetStageOneTile()->GetTileInfo()[start].type = ST_TILE_INFO::MONSTER;
-
-			m_nPrevStart = start;
 
 			vecTile[start].aStarType = ST_TILE_INFO::START;
 			for each(ST_TILE_INFO tile in vecTile)
@@ -93,6 +92,8 @@ void cMonster::FindPath()
 			}
 
 			m_vecDest = m_pAStar->FindPath(&vecTile[start], &m_stEndTile, vecTile);
+
+			m_nPrevStart = start;
 		}
 	}
 }

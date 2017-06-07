@@ -4,6 +4,9 @@
 #include "cMonster.h"
 #include "cTile.h"
 
+#include "cMonster.h"
+#include "cFelorcAxe.h"
+
 cGameManager::cGameManager()
 	:m_sPlayerName("")
 	,m_pStageOneTile(NULL)
@@ -32,5 +35,10 @@ cTile * cGameManager::GetStageOneTile()
 
 void cGameManager::StageOneSetup()
 {
+	m_pStageOneTile = new cTile;
+
+	m_pStageOneTile->Setup(300, 1.0f);
+
+
 }
 

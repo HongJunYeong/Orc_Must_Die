@@ -33,6 +33,9 @@ protected:
 
 	HANDLE				m_hPathThread;
 
+	ST_SPHERE			m_stTraceSphere;
+	ST_SPHERE			m_stAttackSphere;
+
 	float				m_fRotY;
 	bool				m_isDie;
 public:
