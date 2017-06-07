@@ -147,6 +147,42 @@ struct ST_NETWORK
 	bool			isReady = false;
 };
 
+struct ST_TILE_INFO
+{
+	enum eTYPE
+	{
+		NONE,
+		WALL,
+		CHAR,
+		MONSTER,
+		MONSTER_SPAWN,
+		DEST,
+	};
+
+	enum eAStarType
+	{
+		OPEN,
+		CLOSE,
+		PATH,
+		START,
+		END,
+	};
+
+	int				idX;
+	int				idY;
+	float			fG;
+	float			fH;
+	float			fF;
+	eTYPE			type;
+	eAStarType		aStarType;
+	RECT			rc;
+	D3DXVECTOR3		vecCenter;
+	ST_TILE_INFO*	pParent;
+	ST_TILE_INFO() :idX(-1), idY(-1), type(NONE) {}
+};
+
+#define NUM_TILE 300
+
 #define WINSTYLE WS_CAPTION | WS_SYSMENU | WS_CLIPCHILDREN
 
 #define SYNTHESIZE(varType, varName, funName)\
