@@ -22,5 +22,7 @@ public:
 	cTile* GetStageOneTile();
 
 	void StageOneSetup();
+	void StageOneUpdate();
+	void StageOneRender();
 };
 

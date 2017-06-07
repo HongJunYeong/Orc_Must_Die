@@ -39,6 +39,23 @@ void cGameManager::StageOneSetup()
 
 	m_pStageOneTile->Setup(300, 1.0f);
 
+	cFelorcAxe* pFelOrcAxe = new cFelorcAxe;
+	pFelOrcAxe->Setup();
 
+	m_vecMonster.push_back(pFelOrcAxe);
+}
+
+void cGameManager::StageOneUpdate()
+{
+	for each(cMonster* monster in m_vecMonster)
+		monster->Update();
+}
+
+void cGameManager::StageOneRender()
+{
+	m_pStageOneTile->Render();
+
+	for each(cMonster* monster in m_vecMonster)
+		monster->Render();
 }
 
