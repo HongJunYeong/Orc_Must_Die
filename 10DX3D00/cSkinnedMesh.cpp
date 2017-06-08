@@ -274,3 +274,17 @@ double cSkinnedMesh::GetAniTrackPosition()
 
 	return dPosition;
 }
+
+void cSkinnedMesh::SetNextAniMation(int nIndex, int nNextIndex)
+{
+	int num = m_pAnimController->GetNumAnimationSets();
+	if (nIndex > num) nIndex = nIndex % num;
+
+	double dPeriod = GetAniTime(nIndex); //현재 애니메이션의 총 길이를 구함
+	double dPeridPosition = GetAniTrackPosition(); //현재 애니메이션의 위치를 구함
+
+	if ((dPeridPosition + 0.001f) >= dPeriod)
+	{
+		SetAnimationIndexBlend(nNextIndex);
+	}
+}

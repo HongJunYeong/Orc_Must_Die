@@ -34,12 +34,9 @@ public:
 	double GetAniTime(int nindex);//인덱스 위치의 애니메이션 길이를 가져옴
 	double GetAniTrackPosition();//현재 진행중인 애니메이션의 위치를 가져옴
 
-	/*
-	m_pAnimController->GetNumAnimationSets();
-
-	LPD3DXANIMATIONSET ...
-	m_pAnimController->GetAnimationSet(index,.....);
-	m_pAnimController->SetTrackAnimationSet(0,....);
-	*/
+	//인덱스 위치의 애니메이션 종료시 선택한 애니메이션으로 변환
+	//nIndex = 현재 사용중인 애니메이션 셋
+	//nOutIndex = 현재 사용중인 애니메이션 종료시 변경하고자 하는 애니메이션 셋
+	void SetNextAniMation(int nIndex, int nNextIndex);
 };
 
