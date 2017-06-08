@@ -12,7 +12,6 @@ cTile::cTile()
 
 cTile::~cTile()
 {
-	SAFE_RELEASE(m_pTexture);
 }
 
 void cTile::Setup(int nTileNum, float fInterval)
@@ -25,57 +24,57 @@ void cTile::Setup(int nTileNum, float fInterval)
 			ST_PNT_VERTEX vertex;
 
 			vertex.p = D3DXVECTOR3(-(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval,
-									0.0f,
-									-(nTileNum / ((1.0f / fInterval) * 2.0f)) + j * fInterval);
+				0.0f,
+				(nTileNum / ((1.0f / fInterval) * 2.0f)) - j * fInterval);
 			vertex.t = D3DXVECTOR2(0, 1);
 			m_vecVertex.push_back(vertex);
-			stTileInfo.rc.left   = vertex.p.x;
+			stTileInfo.rc.left = vertex.p.x;
 			stTileInfo.rc.bottom = vertex.p.z;
 
-			vertex.p = D3DXVECTOR3(-(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval, 
-									0.0f, 
-									fInterval + -(nTileNum / ((1.0f / fInterval) * 2.0f)) + j * fInterval);
+			vertex.p = D3DXVECTOR3(-(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval,
+				0.0f,
+				fInterval + (nTileNum / ((1.0f / fInterval) * 2.0f)) - j * fInterval);
 			vertex.t = D3DXVECTOR2(0, 0);
 			m_vecVertex.push_back(vertex);
 
-			vertex.p = D3DXVECTOR3(fInterval + -(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval, 
-									0.0f, 
-									fInterval + -(nTileNum / ((1.0f / fInterval) * 2.0f)) + j * fInterval);
+			vertex.p = D3DXVECTOR3(fInterval + -(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval,
+				0.0f,
+				fInterval + (nTileNum / ((1.0f / fInterval) * 2.0f)) - j * fInterval);
 			vertex.t = D3DXVECTOR2(1, 0);
 			m_vecVertex.push_back(vertex);
 			stTileInfo.rc.right = vertex.p.x;
-			stTileInfo.rc.top   = vertex.p.z;
+			stTileInfo.rc.top = vertex.p.z;
 
-			vertex.p = D3DXVECTOR3(-(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval, 
-									0.0f, 
-									-(nTileNum / ((1.0f / fInterval) * 2.0f)) + j * fInterval);
+			vertex.p = D3DXVECTOR3(-(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval,
+				0.0f,
+				(nTileNum / ((1.0f / fInterval) * 2.0f)) - j * fInterval);
 			vertex.t = D3DXVECTOR2(0, 1);
 			m_vecVertex.push_back(vertex);
 
-			vertex.p = D3DXVECTOR3(fInterval + -(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval, 
-									0.0f, 
-									fInterval + -(nTileNum / ((1.0f / fInterval) * 2.0f)) + j * fInterval);
+			vertex.p = D3DXVECTOR3(fInterval + -(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval,
+				0.0f,
+				fInterval + (nTileNum / ((1.0f / fInterval) * 2.0f)) - j * fInterval);
 			vertex.t = D3DXVECTOR2(1, 0);
 			m_vecVertex.push_back(vertex);
 
-			vertex.p = D3DXVECTOR3(fInterval + -(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval, 
-									0.0f, 
-									-(nTileNum / ((1.0f / fInterval) * 2.0f)) + j * fInterval);
+			vertex.p = D3DXVECTOR3(fInterval + -(nTileNum / ((1.0f / fInterval) * 2.0f)) + i * fInterval,
+				0.0f,
+				(nTileNum / ((1.0f / fInterval) * 2.0f)) - j * fInterval);
 			vertex.t = D3DXVECTOR2(1, 1);
 			m_vecVertex.push_back(vertex);
 
-			stTileInfo.idX = i;
-			stTileInfo.idY = j;
-			
+			stTileInfo.idX = j;
+			stTileInfo.idY = i;
+
 			stTileInfo.vecCenter = D3DXVECTOR3((stTileInfo.rc.left + stTileInfo.rc.right) / 2.0f,
-												0.0f,
-												(stTileInfo.rc.top + stTileInfo.rc.bottom) / 2.0f);
+				0.0f,
+				(stTileInfo.rc.top + stTileInfo.rc.bottom) / 2.0f);
 
 			m_stTileInfo.push_back(stTileInfo);
 		}
 	}
 
-	D3DXVECTOR3 u, v, n;
+	/*D3DXVECTOR3 u, v, n;
 	for (int i = 0; i < m_vecVertex.size(); i += 3)
 	{
 		u = m_vecVertex[i + 1].p - m_vecVertex[i].p;
@@ -87,6 +86,25 @@ void cTile::Setup(int nTileNum, float fInterval)
 		m_vecVertex[i + 0].n = n;
 		m_vecVertex[i + 1].n = n;
 		m_vecVertex[i + 2].n = n;
+	}*/
+
+	{
+		FILE *fp;
+		fopen_s(&fp, "TileInfo.txt", "r");
+
+		for (int j = 0; j < m_stTileInfo.size(); ++j)
+		{
+			int nt = m_stTileInfo.size();
+
+			char szTemp[10];
+			fgets(szTemp, 10, fp);
+
+			int n;
+			sscanf_s(szTemp, "%d", &n);
+
+			m_stTileInfo[j].type = (ST_TILE_INFO::eTYPE)n;
+
+		}
 	}
 }
 
@@ -99,21 +117,31 @@ void cTile::Render()
 	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
 	g_pD3DDevice->SetFVF(ST_PNT_VERTEX::FVF);
 
-	g_pD3DDevice->SetTexture(0, m_pTexture);
+	g_pD3DDevice->SetTexture(0, 0);
 	g_pD3DDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST,
 		m_vecVertex.size() / 3,
 		&m_vecVertex[0],
 		sizeof(ST_PNT_VERTEX));
 	g_pD3DDevice->SetTexture(0, NULL);
+}
 
-	for each(auto p in m_vecPyramid)
-	{
-		p->Render();
-	}
+int cTile::FindArrForXZ(float x, float z)
+{
+	int nCellsPerCol = NUM_TILE - 1;
+	int nCellsPerRow = NUM_TILE - 1;
+	x = ((float)nCellsPerCol / 2.0f) + x;
+	z = ((float)nCellsPerRow / 2.0f) - z;
+
+	x /= 1.0f;
+	z /= 1.0f;
+
+	int col = floorf(x);
+	int row = floorf(z);
+
+	return col * NUM_TILE + row + 1;
 }
 
 ST_TILE_INFO cTile::FindTile(ST_TILE_INFO::eTYPE type)
 {
-
 	return ST_TILE_INFO();
 }

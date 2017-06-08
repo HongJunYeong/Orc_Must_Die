@@ -106,9 +106,10 @@ void cSetIPScene::OnClickNextScene()
 
 	cout << sIP << endl;
 
+	cUITextView* textView = (cUITextView*)m_pUIRoot->FindChildByTag(10);
+
 	if (sIP == "")
 	{
-		cUITextView* textView = (cUITextView*)m_pUIRoot->FindChildByTag(10);
 		textView->SetText("접속할 서버의 IP를 반드시 입력해주세요.!");
 		return;
 	}
@@ -141,6 +142,8 @@ void cSetIPScene::OnClickNextScene()
 	{
 
 	}
+
+	textView->SetText("접속할 서버의 IP주소를 적어주세요.!");
 }
 
 void cSetIPScene::OnClickPrevScene()

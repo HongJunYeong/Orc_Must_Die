@@ -18,6 +18,16 @@ cGameManager::~cGameManager()
 {
 }
 
+void cGameManager::Destroy()
+{
+	SAFE_DELETE(m_pStageOneTile);
+
+	for each(auto p in m_vecMonster)
+		p->Release();
+
+	m_vecMonster.clear();
+}
+
 void cGameManager::SetPlayerName(string name)
 {
 	m_sPlayerName = name;
@@ -53,9 +63,14 @@ void cGameManager::StageOneUpdate()
 
 void cGameManager::StageOneRender()
 {
+	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	m_pStageOneTile->Render();
+	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 
+	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, false);
 	for each(cMonster* monster in m_vecMonster)
 		monster->Render();
+
+	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, true);
 }
 

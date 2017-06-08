@@ -324,7 +324,7 @@ void cMultiReadyScene::CheckReady()
 			nReadyCount++;
 	}
 
-	if (nReadyCount == 2)
+	if (nReadyCount == 1)
 	{
 		m_isAllReady = true;
 		m_nCountStart = GetTickCount();
@@ -341,7 +341,7 @@ void cMultiReadyScene::ChangeCount()
 
 		m_nReadyCount--;
 
-		if (m_nReadyCount == 0)
+		if (m_nReadyCount == 4)
 		{
 			m_isSceneChange = true;
 			m_nScreenChangeAlpha = 255;

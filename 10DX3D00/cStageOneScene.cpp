@@ -18,11 +18,12 @@ void cStageOneScene::Setup()
 
 void cStageOneScene::Update()
 {
+	g_pGameManager->StageOneUpdate();
 }
 
 void cStageOneScene::Render(LPD3DXSPRITE pSprite)
 {
-	g_pGameManager->GetStageOneTile()->Render();
+	g_pGameManager->StageOneRender();
 }
 
 void cStageOneScene::Release()

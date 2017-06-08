@@ -47,22 +47,19 @@ void cAStar::Render()
 	}*/
 }
 
-vector<D3DXVECTOR3> cAStar::FindPath(ST_TILE_INFO* Start, ST_TILE_INFO* End, vector<ST_TILE_INFO> vecTile)
+vector<D3DXVECTOR3> cAStar::FindPath(vector<ST_TILE_INFO> vecTile)
 {
 	m_setOpenList.clear();
 	m_setCloseList.clear();
 	m_vecDest.clear();
 	m_vecTile.clear();
 
-	m_vecDest.push_back(End->vecCenter);
-
 	m_vecTile = vecTile;
 
-	//cTile* pStartTile = FindTile(cTile::E_START);
-	//cTile* pEndTile = FindTile(cTile::E_END);
+	ST_TILE_INFO* pStartTile = FindTile(ST_TILE_INFO::START);
+	ST_TILE_INFO* pEndTile = FindTile(ST_TILE_INFO::END);
 
-	ST_TILE_INFO* pStartTile = Start;
-	ST_TILE_INFO* pEndTile = End;
+	m_vecDest.push_back(pEndTile->vecCenter);
 
 	pStartTile->fG = 0.0f;
 	pStartTile->fH = CalcHeuristic(pStartTile, pEndTile);
@@ -83,7 +80,6 @@ vector<D3DXVECTOR3> cAStar::FindPath(ST_TILE_INFO* Start, ST_TILE_INFO* End, vec
 		m_setOpenList.erase(pMinFNode);
 		m_setCloseList.insert(pMinFNode);
 
-		
 		Extend(pMinFNode, pEndTile);
 
 		if (pMinFNode == pEndTile)
@@ -97,14 +93,14 @@ vector<D3DXVECTOR3> cAStar::FindPath(ST_TILE_INFO* Start, ST_TILE_INFO* End, vec
 	
 }
 
-//cTile * cAStar::FindTile(cTile::eTILE_TYPE e)
-//{
-//	for (int i = 0; i < m_vecTile.size(); i++)
-//	{
-//		if (m_vecTile[i]->GetTileType() == e)
-//			return m_vecTile[i];
-//	}
-//}
+ST_TILE_INFO* cAStar::FindTile(ST_TILE_INFO::eAStarType e)
+{
+	for (int i = 0; i < m_vecTile.size(); i++)
+	{
+		if (m_vecTile[i].aStarType == e)
+			return &m_vecTile[i];
+	}
+}
 
 float cAStar::CalcHeuristic(ST_TILE_INFO* tile1, ST_TILE_INFO* tile2)
 {
@@ -118,6 +114,7 @@ ST_TILE_INFO* cAStar::FindMinFNodeAtOpenList()
 	ST_TILE_INFO* pMinTile = NULL;
 
 	set<ST_TILE_INFO*>::iterator iter;
+
 	for (iter = m_setOpenList.begin(); iter != m_setOpenList.end(); ++iter)
 	{
 		if ((*iter)->fF < fMinF)
@@ -131,7 +128,7 @@ ST_TILE_INFO* cAStar::FindMinFNodeAtOpenList()
 
 void cAStar::MarkNodeType(ST_TILE_INFO* startTile, ST_TILE_INFO* endTile)
 {
-	for (int i=0 ; i < m_vecTile.size(); i++)
+	/*for (int i=0 ; i < m_vecTile.size(); i++)
 	{
 		if (IsInList(&m_vecTile[i], m_setOpenList))
 		{
@@ -141,9 +138,10 @@ void cAStar::MarkNodeType(ST_TILE_INFO* startTile, ST_TILE_INFO* endTile)
 		{
 			m_vecTile[i].aStarType = ST_TILE_INFO::CLOSE;
 		}
-	}
+	}*/
 
 	ST_TILE_INFO* pTemp = endTile;
+
 	while (pTemp)
 	{
 		if (pTemp == startTile)
@@ -207,37 +205,48 @@ ST_TILE_INFO* cAStar::GetAdjNode(ST_TILE_INFO* centerTile, int dir)
 
 		int nIndex = nAdjCol * TILE_X + nAdjRow - 1;
 
-		if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL) return NULL;
+		if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL)
+			return NULL;
 		if (m_vecTile[nIndex].type == ST_TILE_INFO::MONSTER) return NULL;
 		nAdjRow -= 1;
 	}
 	if (dir & E_RIGHT)
 	{
 		if (centerTile->idX == TILE_X - 1) return NULL;
+
 		int nIndex = nAdjCol * TILE_X + nAdjRow + 1;
-		if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL) return NULL;
+
+		if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL)
+			return NULL;
 		if (m_vecTile[nIndex].type == ST_TILE_INFO::MONSTER) return NULL;
 		nAdjRow += 1;
 	}
 	if (dir & E_UP)
 	{
 		if (centerTile->idY == 0) return NULL;
+
 		int nIndex = (nAdjCol - 1)* TILE_X + nAdjRow;
-		if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL) return NULL;
+
+		if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL)
+			return NULL;
 		if (m_vecTile[nIndex].type == ST_TILE_INFO::MONSTER) return NULL;
 		nAdjCol -= 1;
 	}
 	if (dir & E_DOWN)
 	{
 		if (centerTile->idY == TILE_X - 1) return NULL;
+
 		int nIndex = (nAdjCol + 1)* TILE_X + nAdjRow;
-		if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL) return NULL;
+
+		if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL)
+			return NULL;
 		if (m_vecTile[nIndex].type == ST_TILE_INFO::MONSTER) return NULL;
 		nAdjCol += 1;
 	}
 
 	int nIndex = nAdjCol * TILE_X + nAdjRow;
-	if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL) return NULL;
+	if (m_vecTile[nIndex].type == ST_TILE_INFO::WALL)
+		return NULL;
 	if (m_vecTile[nIndex].type == ST_TILE_INFO::MONSTER) return NULL;
 	if (IsInList(&m_vecTile[nIndex], m_setCloseList)) return NULL;
 
