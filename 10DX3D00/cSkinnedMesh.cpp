@@ -87,11 +87,8 @@ void cSkinnedMesh::Update(LPD3DXFRAME pFrame, LPD3DXFRAME pParent)
 	}
 }
 
-void cSkinnedMesh::Render(LPD3DXFRAME pFrame, D3DXVECTOR3 vScale)
+void cSkinnedMesh::Render(LPD3DXFRAME pFrame, D3DXMATRIXA16* matWorld)
 {
-	D3DXMATRIXA16 matWorld, matS, matT;
-	D3DXMatrixIdentity(&matWorld);
-
 	if (pFrame == NULL)
 		pFrame = m_pRoot;
 
@@ -102,11 +99,7 @@ void cSkinnedMesh::Render(LPD3DXFRAME pFrame, D3DXVECTOR3 vScale)
 		ST_BONE_MESH* pBoneMesh = (ST_BONE_MESH*)pBone->pMeshContainer;
 		if (pBoneMesh->MeshData.pMesh)
 		{
-			D3DXMatrixScaling(&matS, vScale.x, vScale.y, vScale.z);
-
-			matWorld = matS * pBone->CombinedTransformationMatrix;
-
-			g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+			g_pD3DDevice->SetTransform(D3DTS_WORLD, &(pBone->CombinedTransformationMatrix * (*matWorld)));
 
 			for (size_t i = 0; i < pBoneMesh->vecMtl.size(); ++i)
 			{
@@ -119,12 +112,12 @@ void cSkinnedMesh::Render(LPD3DXFRAME pFrame, D3DXVECTOR3 vScale)
 
 	if (pFrame->pFrameFirstChild)
 	{
-		Render(pFrame->pFrameFirstChild, vScale);
+		Render(pFrame->pFrameFirstChild, matWorld);
 	}
 
 	if (pFrame->pFrameSibling)
 	{
-		Render(pFrame->pFrameSibling, vScale);
+		Render(pFrame->pFrameSibling, matWorld);
 	}
 }
 
@@ -240,7 +233,60 @@ void cSkinnedMesh::SetAnimationIndexBlend(int nIndex)
 
 	m_pAnimController->SetTrackWeight(0, 0.0f);
 	m_pAnimController->SetTrackWeight(1, 1.0f);
+	//m_pAnimController->ResetTime();
 
 	SAFE_RELEASE(pPrevAnimSet);
 	SAFE_RELEASE(pNexetAnimSet);
+}
+
+LPD3DXFRAME cSkinnedMesh::GetRootFrame()
+{
+	return m_pRoot;
+}
+
+void cSkinnedMesh::SetRootFrame(LPD3DXFRAME pFrame)
+{
+	m_pRoot = pFrame;
+}
+
+double cSkinnedMesh::GetAniTime(int nindex)
+{
+	//애니메이션의 총 갯수를 넘은 index값이 들어왔을 경우 재설정
+	int num = m_pAnimController->GetNumAnimationSets();
+	if (nindex > num) nindex = nindex % num;
+
+	//애니메이션 구간 얻기
+	LPD3DXANIMATIONSET pAniSet = nullptr;
+	m_pAnimController->GetAnimationSet(nindex, &pAniSet); //해당 인덱스의 애니메이션을 저장
+	double dPeriod = pAniSet->GetPeriod();//index위치의 애니메이션 길이를 얻은 후 pPeriod에 저장
+
+	SAFE_RELEASE(pAniSet);
+
+	return dPeriod;
+}
+
+double cSkinnedMesh::GetAniTrackPosition()
+{
+	//애니메이션 진행도 얻기
+	D3DXTRACK_DESC pTrackDesc;
+	m_pAnimController->GetTrackDesc(0, &pTrackDesc); //현재 진행중인 트랙을 가져옴
+	double dPosition = pTrackDesc.Position; //현재 진행중인 트랙의 위치(진행도)를 얻음 [로컬 프레임 타임]
+
+	return dPosition;
+}
+
+bool cSkinnedMesh::SetNextAniMation(int nIndex, int nNextIndex)
+{
+	int num = m_pAnimController->GetNumAnimationSets();
+	if (nIndex > num) nIndex = nIndex % num;
+
+	double dPeriod = GetAniTime(nIndex); //현재 애니메이션의 총 길이를 구함
+	double dPeridPosition = GetAniTrackPosition(); //현재 애니메이션의 위치를 구함
+
+	if ((dPeridPosition + 0.001f) >= dPeriod)
+	{
+		SetAnimationIndexBlend(nNextIndex);
+		return true;
+	}
+	return false;
 }
