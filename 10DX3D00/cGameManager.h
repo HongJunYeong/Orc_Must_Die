@@ -17,6 +17,7 @@ private:
 
 	cTile*				m_pStageOneTile;
 public:
+	void Destroy();
 	void SetPlayerName(string name);
 	string GetPlayerName();
 	cTile* GetStageOneTile();
