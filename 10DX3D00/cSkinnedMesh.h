@@ -37,6 +37,6 @@ public:
 	//인덱스 위치의 애니메이션 종료시 선택한 애니메이션으로 변환
 	//nIndex = 현재 사용중인 애니메이션 셋
 	//nOutIndex = 현재 사용중인 애니메이션 종료시 변경하고자 하는 애니메이션 셋
-	void SetNextAniMation(int nIndex, int nNextIndex);
+	bool SetNextAniMation(int nIndex, int nNextIndex);
 };
 

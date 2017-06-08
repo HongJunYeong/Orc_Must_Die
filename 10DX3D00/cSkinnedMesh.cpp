@@ -275,7 +275,7 @@ double cSkinnedMesh::GetAniTrackPosition()
 	return dPosition;
 }
 
-void cSkinnedMesh::SetNextAniMation(int nIndex, int nNextIndex)
+bool cSkinnedMesh::SetNextAniMation(int nIndex, int nNextIndex)
 {
 	int num = m_pAnimController->GetNumAnimationSets();
 	if (nIndex > num) nIndex = nIndex % num;
@@ -286,5 +286,7 @@ void cSkinnedMesh::SetNextAniMation(int nIndex, int nNextIndex)
 	if ((dPeridPosition + 0.001f) >= dPeriod)
 	{
 		SetAnimationIndexBlend(nNextIndex);
+		return true;
 	}
+	return false;
 }
