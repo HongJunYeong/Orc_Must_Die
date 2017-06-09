@@ -11,6 +11,7 @@ cGameManager::cGameManager()
 	:m_sPlayerName("")
 	,m_pStageOneTile(NULL)
 {
+	m_hSem = CreateSemaphore(NULL, 4, 4, NULL);
 }
 
 
@@ -26,6 +27,7 @@ void cGameManager::Destroy()
 		p->Release();
 
 	m_vecMonster.clear();
+	CloseHandle(m_hSem);
 }
 
 void cGameManager::SetPlayerName(string name)
@@ -49,10 +51,21 @@ void cGameManager::StageOneSetup()
 
 	m_pStageOneTile->Setup(300, 1.0f);
 
-	cFelorcAxe* pFelOrcAxe = new cFelorcAxe;
-	pFelOrcAxe->Setup();
+	for (int i = 0; i < 20; i++)
+	{
+		cFelorcAxe* pFelOrcAxe = new cFelorcAxe;
+		pFelOrcAxe->Setup();
+		m_vecMonster.push_back(pFelOrcAxe);
+	}
 
-	m_vecMonster.push_back(pFelOrcAxe);
+	for (int i = 0; i < g_pGameManager->GetStageOneTile()->GetTileInfo().size(); i++)
+	{
+		if (g_pGameManager->GetStageOneTile()->GetTileInfo()[i].type == ST_TILE_INFO::MONSTER_SPAWN_BLOCK)
+			g_pGameManager->GetStageOneTile()->GetTileInfo()[i].type = ST_TILE_INFO::MONSTER_SPAWN;
+	}
+
+	for each(cFelorcAxe* p in m_vecMonster)
+		p->ThreadResume();
 }
 
 void cGameManager::StageOneUpdate()
@@ -63,9 +76,9 @@ void cGameManager::StageOneUpdate()
 
 void cGameManager::StageOneRender()
 {
-	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	/*g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	m_pStageOneTile->Render();
-	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);*/
 
 	g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, false);
 	for each(cMonster* monster in m_vecMonster)

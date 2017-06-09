@@ -17,10 +17,17 @@ private:
 
 	cTile*				m_pStageOneTile;
 public:
+	HANDLE				m_hSem;
+
 	void Destroy();
 	void SetPlayerName(string name);
 	string GetPlayerName();
 	cTile* GetStageOneTile();
+
+	vector<cMonster*>& GetMonster()
+	{
+		return m_vecMonster;
+	}
 
 	void StageOneSetup();
 	void StageOneUpdate();
