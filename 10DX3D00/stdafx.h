@@ -30,6 +30,8 @@
 #include <process.h>
 #include <WinSock2.h>
 #include <iostream>
+#include <time.h>
+#include <thread>
 
 #include <d3dx9.h>
 #pragma comment(lib, "d3d9.lib")
@@ -147,6 +149,21 @@ struct ST_NETWORK
 	bool			isReady = false;
 };
 
+struct ST_BONE : public D3DXFRAME
+{
+	D3DXMATRIXA16 CombinedTransformationMatrix;
+};
+
+struct ST_BONE_MESH : public D3DXMESHCONTAINER
+{
+	std::vector<D3DMATERIAL9>		vecMtl;
+	std::vector<LPDIRECT3DTEXTURE9> vecTexture;
+	LPD3DXMESH		pOrigMesh;
+	D3DXMATRIX**	ppBoneMatrixPtrs;
+	D3DXMATRIX*		pBoneOffsetMatrices;
+	D3DXMATRIX*		pCurrentBoneMatrices;
+};
+
 struct ST_TILE_INFO
 {
 	enum eTYPE
@@ -157,10 +174,12 @@ struct ST_TILE_INFO
 		MONSTER,
 		MONSTER_SPAWN,
 		DEST,
+		MONSTER_SPAWN_BLOCK,
 	};
 
 	enum eAStarType
 	{
+		EMPTY,
 		OPEN,
 		CLOSE,
 		PATH,
@@ -177,9 +196,44 @@ struct ST_TILE_INFO
 	eAStarType		aStarType;
 	RECT			rc;
 	D3DXVECTOR3		vecCenter;
-	ST_TILE_INFO*	pParent;
+	ST_TILE_INFO*	pParent = NULL;
+
+	bool			isFNode;
 
 	ST_TILE_INFO() :idX(-1), idY(-1), type(NONE) {}
+};
+
+struct ST_OBJECT_INFO
+{
+	LPD3DXMESH              _pMesh;
+	D3DMATERIAL9*           _pMeshMaterials;
+	LPDIRECT3DTEXTURE9*     _pMeshTextures;
+	DWORD                   _dwNumMaterials;
+	float               _fScale;
+	ST_OBJECT_INFO() : _fScale(1.0f) {}
+};
+
+struct ST_OBJECT
+{
+	enum eTYPE
+	{
+		NONE,
+		WALL,
+		OBJ,
+		CHAR,
+		MONSTER_SPAWN,
+		DEST
+	};
+
+	string       sObjName;
+	D3DXVECTOR3  vCenter;
+
+	eTYPE       eType;
+	float       fRot;
+	bool       isDelete;
+	int          idX, idY;
+
+	ST_OBJECT() : vCenter(0, 0, 0), fRot(0.0f), idX(-1), idY(-1), eType(NONE), isDelete(false), sObjName("") {}
 };
 
 #define NUM_TILE 300
