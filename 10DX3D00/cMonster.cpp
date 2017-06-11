@@ -50,6 +50,41 @@ void cMonster::Render()
 {
 }
 
+void cMonster::Move()
+{
+	m_vPosition = m_vPosition + (m_vDirection * 0.1f);
+	D3DXVECTOR3 v = m_vecDest.back() - m_vPosition;
+	float len = D3DXVec3Length(&v);
+
+	if (len <= 0.1f)
+	{
+		m_vPosition = m_vecDest.back();
+
+		if (m_vPosition == m_vFinalDest)
+		{
+			m_isDie = true;
+			return;
+		}
+		m_vecDest.pop_back();
+
+		if (m_vecDest.size() == 0)
+		{
+			m_isFindPath = false;
+			return;
+		}
+		m_vDirection = m_vecDest.back() - m_vPosition;
+		D3DXVec3Normalize(&m_vDirection, &m_vDirection);
+
+		D3DXVECTOR3 zAxis(0, 0, 1);
+		m_fRotY = acosf(D3DXVec3Dot(&m_vDirection, &zAxis));
+		if (m_vDirection.x >= 0) m_fRotY += D3DX_PI;
+		else if (m_vDirection.x < 0) m_fRotY = -m_fRotY + D3DX_PI;
+	}
+
+	m_vDirection = m_vecDest.back() - m_vPosition;
+	D3DXVec3Normalize(&m_vDirection, &m_vDirection);
+}
+
 void cMonster::Sphere_Render()
 {
 	D3DXMATRIXA16 matWorld, matT;
@@ -125,7 +160,7 @@ void cMonster::LWeaponSphere_Render(string name)
 	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 }
 
-float cMonster::Distance_Between_Two_Points(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
+float cMonster::Distance_Between_Three_Points(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
 {
 	float dDistance = 0.0f;
 	float x = pow(v1.x - v2.x, 2);
@@ -135,6 +170,8 @@ float cMonster::Distance_Between_Two_Points(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
 	return dDistance = sqrt(x + y + z);
 
 }
+
+
 
 void cMonster::Release()
 {
@@ -194,6 +231,7 @@ void cMonster::FindPath()
 
 			//
 			m_isFindPath = true;
+			m_eMonsterState = E_NONE;
 
 			m_vDirection = m_vecDest.back() - m_vPosition;
 			D3DXVec3Normalize(&m_vDirection, &m_vDirection);
@@ -206,39 +244,6 @@ void cMonster::FindPath()
 		}
 		ReleaseSemaphore(g_pGameManager->m_hSem,1,NULL);
 	}
-}
-
-void cMonster::FindPath2()
-{
-	m_vecDest.clear();
-
-	vector<ST_TILE_INFO> vecTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue();
-
-	int start = g_pGameManager->GetStageOneTile()->FindArrForXZ(m_vPosition.x, m_vPosition.z);
-	int end = g_pGameManager->GetStageOneTile()->FindArr(m_stEndTile.idX, m_stEndTile.idY);
-
-	vecTile[start].aStarType = ST_TILE_INFO::START;
-	vecTile[end].aStarType = ST_TILE_INFO::END;
-
-	m_vecDest = m_pAStar->FindPath(vecTile);
-
-	cout << m_vecDest.size() << endl;
-
-	int n = m_vecDest.size();
-
-	//
-	m_isFindPath = true;
-
-	m_vDirection = m_vecDest.back() - m_vPosition;
-	D3DXVec3Normalize(&m_vDirection, &m_vDirection);
-
-	D3DXVECTOR3 zAxis(0, 0, 1);
-	m_fRotY = acosf(D3DXVec3Dot(&m_vDirection, &zAxis));
-	if (m_vDirection.x >= 0) m_fRotY += D3DX_PI;
-	else if (m_vDirection.x < 0) m_fRotY = -m_fRotY + D3DX_PI;
-
-	StopThread();
-	//
 }
 
 void cMonster::ThreadResume()

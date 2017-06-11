@@ -45,12 +45,15 @@ cTile * cGameManager::GetStageOneTile()
 	return m_pStageOneTile;
 }
 
-void cGameManager::StageOneSetup()
+void cGameManager::StageOneTileSetup()
 {
 	m_pStageOneTile = new cTile;
 
 	m_pStageOneTile->Setup(300, 1.0f);
+}
 
+void cGameManager::StageOneSetup()
+{
 	for (int i = 0; i < 20; i++)
 	{
 		cFelorcAxe* pFelOrcAxe = new cFelorcAxe;
@@ -64,8 +67,8 @@ void cGameManager::StageOneSetup()
 			g_pGameManager->GetStageOneTile()->GetTileInfo()[i].type = ST_TILE_INFO::MONSTER_SPAWN;
 	}
 
-	for each(cFelorcAxe* p in m_vecMonster)
-		p->ThreadResume();
+	//for each(cFelorcAxe* p in m_vecMonster)
+	//	p->ThreadResume();
 }
 
 void cGameManager::StageOneUpdate()

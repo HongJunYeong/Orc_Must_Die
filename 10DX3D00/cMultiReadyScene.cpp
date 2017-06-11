@@ -5,7 +5,8 @@
 #include "cUIImageView.h"
 #include "cUITextView.h"
 
-#include "cStageOneScene.h"
+//#include "cStageOneScene.h"
+#include "cLoadingScene.h"
 #include "cChatLog.h"
 
 unsigned int __stdcall RecvThread(LPVOID p);
@@ -341,7 +342,7 @@ void cMultiReadyScene::ChangeCount()
 
 		m_nReadyCount--;
 
-		if (m_nReadyCount == 4)
+		if (m_nReadyCount == 0)
 		{
 			m_isSceneChange = true;
 			m_nScreenChangeAlpha = 255;
@@ -351,11 +352,7 @@ void cMultiReadyScene::ChangeCount()
 				CloseHandle(m_hRecvThread);
 			}
 
-			cStageOneScene* stageOneScene = new cStageOneScene;
-			stageOneScene->Setup();
-			g_pGameManager->StageOneSetup();
-			g_pSceneManager->AddScene("StageOneScene", stageOneScene);
-			g_pSceneManager->SetCurrentScene("StageOneScene");
+			g_pSceneManager->SetCurrentScene("LoadingScene");
 			return;
 		}
 		else

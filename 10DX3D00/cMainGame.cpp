@@ -9,6 +9,8 @@
 #include "cCharacterNameScene.h"
 #include "cSetIPScene.h"
 #include "cMultiReadyScene.h"
+#include "cLoadingScene.h"
+#include "cStageOneScene.h"
 // << :
 
 
@@ -34,6 +36,7 @@ cMainGame::~cMainGame()
 	g_pObjectManager->Destroy();
 	g_pTextureManager->Destroy();
 	g_pSceneManager->Destroy();
+	g_pGameManager->Destroy();
 
 	g_pDeviceManager->Destroy();
 }
@@ -59,7 +62,7 @@ void cMainGame::Setup()
 	m_pCamera->Setup(NULL);
 
 	// >>
-	g_pSoundManager->addSound(std::string("1"), std::string("S0455.mp3"), false, false);
+	//g_pSoundManager->addSound(std::string("1"), std::string("S0455.mp3"), false, false);
 
 	// <<
 
@@ -98,6 +101,15 @@ void cMainGame::Setup()
 	pMultiReadyScene->Setup();
 	g_pSceneManager->AddScene("MultiReadyScene", pMultiReadyScene);
 
+	cLoadingScene * pLoadingScene = new cLoadingScene;
+	pLoadingScene->Setup();
+	g_pSceneManager->AddScene("LoadingScene", pLoadingScene);
+
+	cStageOneScene* pStageOneScene = new cStageOneScene;
+	pStageOneScene->Setup();
+	g_pSceneManager->AddScene("StageOneScene", pStageOneScene);
+
+	g_pGameManager->StageOneTileSetup();
 }
 
 void cMainGame::Update()

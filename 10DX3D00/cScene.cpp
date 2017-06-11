@@ -54,3 +54,7 @@ void cScene::Release()
 void cScene::StartRecvThread()
 {
 }
+
+void cScene::CloseThread()
+{
+}

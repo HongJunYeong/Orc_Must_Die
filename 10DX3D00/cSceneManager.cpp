@@ -27,6 +27,9 @@ void cSceneManager::Render(LPD3DXSPRITE pSprite)
 
 void cSceneManager::SetCurrentScene(string sSceneName)
 {
+	if (m_pCurrScene)
+		m_pCurrScene->CloseThread();
+
 	m_pCurrScene = m_mapScene[sSceneName];
 }
 

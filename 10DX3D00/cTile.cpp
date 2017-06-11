@@ -74,20 +74,6 @@ void cTile::Setup(int nTileNum, float fInterval)
 		}
 	}
 
-	/*D3DXVECTOR3 u, v, n;
-	for (int i = 0; i < m_vecVertex.size(); i += 3)
-	{
-		u = m_vecVertex[i + 1].p - m_vecVertex[i].p;
-		v = m_vecVertex[i + 2].p - m_vecVertex[i].p;
-
-		D3DXVec3Cross(&n, &u, &v);
-		D3DXVec3Normalize(&n, &n);
-
-		m_vecVertex[i + 0].n = n;
-		m_vecVertex[i + 1].n = n;
-		m_vecVertex[i + 2].n = n;
-	}*/
-
 	{
 		FILE *fp;
 		fopen_s(&fp, "TileInfo.txt", "r");
@@ -141,7 +127,11 @@ int cTile::FindArrForXZ(float x, float z)
 	return col * NUM_TILE + row + 1;
 }
 
-ST_TILE_INFO cTile::FindTile(ST_TILE_INFO::eTYPE type)
+int cTile::FindArrForTileType(ST_TILE_INFO::eTYPE type)
 {
-	return ST_TILE_INFO();
+	for (int i = 0; i < m_stTileInfo.size(); i++)
+	{
+		if(type == m_stTileInfo[i].type)
+			return i;
+	}
 }

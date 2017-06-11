@@ -14,7 +14,7 @@ protected:
 	{
 		E_IDLE,
 		E_ATTACK,
-		E_FIND_PATH,
+		E_NONE,
 		E_DEAD,
 		E_STUN,
 	};
@@ -55,6 +55,9 @@ protected:
 	float				m_fRotY;
 	bool				m_isDie;
 	bool				m_isFindPath;
+	bool				m_isGameStart;
+
+	float				m_fHP;
 public:
 	virtual void Setup();
 	virtual void Update();
@@ -62,13 +65,13 @@ public:
 	virtual void Release();
 	virtual void StartThread();
 	virtual void FindPath();
-	virtual void FindPath2();
 	virtual void ThreadResume();
 	virtual void StopThread();
 
 	virtual void Sphere_Render();
 	virtual void RWeaponSphere_Render(string name);
 	virtual void LWeaponSphere_Render(string name);
-	virtual float Distance_Between_Two_Points(D3DXVECTOR3 v1, D3DXVECTOR3 v2);
+	virtual float Distance_Between_Three_Points(D3DXVECTOR3 v1, D3DXVECTOR3 v2);
+	virtual void Move();
 };
 
