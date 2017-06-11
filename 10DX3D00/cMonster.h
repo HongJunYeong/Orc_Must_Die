@@ -55,6 +55,7 @@ protected:
 	float				m_fRotY;
 	bool				m_isDie;
 	bool				m_isFindPath;
+	bool				m_isGameStart;
 public:
 	virtual void Setup();
 	virtual void Update();
@@ -62,7 +63,6 @@ public:
 	virtual void Release();
 	virtual void StartThread();
 	virtual void FindPath();
-	virtual void FindPath2();
 	virtual void ThreadResume();
 	virtual void StopThread();
 

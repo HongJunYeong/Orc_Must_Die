@@ -20,5 +20,5 @@ public:
 	int FindArr(int x, int y) { return y * NUM_TILE + x; }
 	void FindArr(int arr, int& x, int& y) { y = arr / NUM_TILE, x = arr % NUM_TILE; }
 	int FindArrForXZ(float x, float z);
-	ST_TILE_INFO FindTile(ST_TILE_INFO::eTYPE type);
+	int FindArrForTileType(ST_TILE_INFO::eTYPE type);
 };

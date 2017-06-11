@@ -122,6 +122,7 @@ void cStageOneScene::Update()
 void cStageOneScene::Render(LPD3DXSPRITE pSprite)
 {
 	{
+		g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, false);
 		ObjRender();
 
 		D3DXMATRIXA16 matT, matS, matR, matWorld;
@@ -142,6 +143,7 @@ void cStageOneScene::Render(LPD3DXSPRITE pSprite)
 			g_pD3DDevice->SetTexture(0, m_vecObjMtlTex[i]->GetTexture());
 			m_pObjMesh->DrawSubset(i);
 		}
+		g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, true);
 	}
 	g_pGameManager->StageOneRender();
 }
@@ -258,6 +260,7 @@ void cStageOneScene::ObjSetup()
 
 void cStageOneScene::ObjRender()
 {
+
 	D3DXMATRIXA16 matWorld, matS, matR, matT;
 
 	for each(auto obj in m_vecObj)

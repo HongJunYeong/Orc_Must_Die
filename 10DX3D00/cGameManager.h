@@ -29,6 +29,8 @@ public:
 		return m_vecMonster;
 	}
 
+	void StageOneTileSetup();
+
 	void StageOneSetup();
 	void StageOneUpdate();
 	void StageOneRender();

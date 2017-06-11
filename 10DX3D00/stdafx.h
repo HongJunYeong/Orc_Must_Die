@@ -272,4 +272,4 @@ public: virtual void Set##funName(varType var){\
 #include "cGameManager.h"
 #include "cNetworkManager.h"
 
-//#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 

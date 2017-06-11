@@ -208,39 +208,6 @@ void cMonster::FindPath()
 	}
 }
 
-void cMonster::FindPath2()
-{
-	m_vecDest.clear();
-
-	vector<ST_TILE_INFO> vecTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue();
-
-	int start = g_pGameManager->GetStageOneTile()->FindArrForXZ(m_vPosition.x, m_vPosition.z);
-	int end = g_pGameManager->GetStageOneTile()->FindArr(m_stEndTile.idX, m_stEndTile.idY);
-
-	vecTile[start].aStarType = ST_TILE_INFO::START;
-	vecTile[end].aStarType = ST_TILE_INFO::END;
-
-	m_vecDest = m_pAStar->FindPath(vecTile);
-
-	cout << m_vecDest.size() << endl;
-
-	int n = m_vecDest.size();
-
-	//
-	m_isFindPath = true;
-
-	m_vDirection = m_vecDest.back() - m_vPosition;
-	D3DXVec3Normalize(&m_vDirection, &m_vDirection);
-
-	D3DXVECTOR3 zAxis(0, 0, 1);
-	m_fRotY = acosf(D3DXVec3Dot(&m_vDirection, &zAxis));
-	if (m_vDirection.x >= 0) m_fRotY += D3DX_PI;
-	else if (m_vDirection.x < 0) m_fRotY = -m_fRotY + D3DX_PI;
-
-	StopThread();
-	//
-}
-
 void cMonster::ThreadResume()
 {
 	ResumeThread(m_hPathThread);

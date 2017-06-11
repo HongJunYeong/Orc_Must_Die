@@ -22,5 +22,6 @@ public:
 	virtual void Render(LPD3DXSPRITE pSprite);
 	virtual void Release();
 	virtual void StartRecvThread();
+	virtual void CloseThread();
 };
 
