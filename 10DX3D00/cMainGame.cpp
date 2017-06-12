@@ -11,6 +11,8 @@
 #include "cMultiReadyScene.h"
 #include "cLoadingScene.h"
 #include "cStageOneScene.h"
+#include "cCharacter.h"
+#include "cSkinnedMesh.h"
 // << :
 
 
@@ -27,6 +29,8 @@ cMainGame::~cMainGame()
 	SAFE_RELEASE(m_pSprite);
 	SAFE_RELEASE(m_cursor);
 	SAFE_RELEASE(m_surf);
+
+	g_pSkinnedMeshManager->Destroy();
 
 	//매니저들 해제
 	g_pNetworkManager->Destroy();
@@ -105,17 +109,20 @@ void cMainGame::Setup()
 	pLoadingScene->Setup();
 	g_pSceneManager->AddScene("LoadingScene", pLoadingScene);
 
-	cStageOneScene* pStageOneScene = new cStageOneScene;
-	pStageOneScene->Setup();
-	g_pSceneManager->AddScene("StageOneScene", pStageOneScene);
+	g_pSkinnedMeshManager->AddSkinnedMesh("Model/Enemy/felorc_axe/", "felorc_axe.x");
+	//g_pObjectManager->AddMapObject("Model/Enemy/felorc_axe", "felorc_axe.x","felorc_axe");
 
-	g_pGameManager->StageOneTileSetup();
 }
 
 void cMainGame::Update()
 {
 	g_pTimeManager->Update();
 	g_pSceneManager->Update();
+
+	if (g_pGameManager->GetCharacter().size() > 0)
+	{
+		m_pCamera->SetTarget(&g_pGameManager->GetCharacter()[0]->m_vPostion);
+	}
 
 	if (m_pCamera) m_pCamera->Update();
 

@@ -71,7 +71,13 @@ void cLoadingScene::CloseThread()
 
 void cLoadingScene::Loading()
 {
+	cStageOneScene* pStageOneScene = new cStageOneScene;
+	pStageOneScene->Setup();
+
+	g_pGameManager->StageOneTileSetup();
 	g_pGameManager->StageOneSetup();
+
+	g_pSceneManager->AddScene("StageOneScene", pStageOneScene);
 	g_pSceneManager->SetCurrentScene("StageOneScene");
 }
 

@@ -26,7 +26,8 @@ protected:
 	cAStar*				m_pAStar;
 	ST_TILE_INFO		m_stEndTile;
 	vector<D3DXVECTOR3>	m_vecDest;
-	D3DXVECTOR3			m_vFinalDest;
+	//D3DXVECTOR3			m_vFinalDest;
+	ST_TILE_INFO		m_stFinalDestTile;
 	int					m_nPrevStart;
 
 	D3DXVECTOR3			m_vPosition;
@@ -57,7 +58,13 @@ protected:
 	bool				m_isFindPath;
 	bool				m_isGameStart;
 
+	bool				m_isTrace;
+	bool				m_isTraceForFinalDest;
+	bool				m_isAttack;
 	float				m_fHP;
+
+	int					m_nStartTime;
+	int					m_nEndTime;
 public:
 	virtual void Setup();
 	virtual void Update();
@@ -73,5 +80,10 @@ public:
 	virtual void LWeaponSphere_Render(string name);
 	virtual float Distance_Between_Three_Points(D3DXVECTOR3 v1, D3DXVECTOR3 v2);
 	virtual void Move();
+
+	virtual void CheckTraceTime();
+
+	virtual void TraceSeach();
+	virtual bool AttackSearch();
 };
 

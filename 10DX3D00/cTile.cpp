@@ -124,7 +124,7 @@ int cTile::FindArrForXZ(float x, float z)
 	int col = floorf(x);
 	int row = floorf(z);
 
-	return col * NUM_TILE + row + 1;
+	return col * NUM_TILE + row;
 }
 
 int cTile::FindArrForTileType(ST_TILE_INFO::eTYPE type)

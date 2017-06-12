@@ -4,6 +4,7 @@
 #include "cSkinnedMesh.h"
 #include "cAStar.h"
 #include "cTile.h"
+#include "cCharacter.h"
 
 unsigned int __stdcall FindPathThread(LPVOID p);
 
@@ -32,6 +33,11 @@ void cMonster::Setup()
 	m_isDie = false;
 	m_isFindPath = false;
 	m_isCollision = false;
+	m_isGameStart = true;
+
+	m_isAttack = false;
+	m_isTrace = false;
+	m_isTraceForFinalDest = false;
 
 	m_nAnimIndex = 0;
 
@@ -43,7 +49,7 @@ void cMonster::Setup()
 
 void cMonster::Update()
 {
-	srand(time(NULL));
+
 }
 
 void cMonster::Render()
@@ -52,37 +58,137 @@ void cMonster::Render()
 
 void cMonster::Move()
 {
-	m_vPosition = m_vPosition + (m_vDirection * 0.1f);
-	D3DXVECTOR3 v = m_vecDest.back() - m_vPosition;
-	float len = D3DXVec3Length(&v);
+	if (m_isAttack) return;
 
-	if (len <= 0.1f)
+	if (m_vecDest.size() > 0)
 	{
-		m_vPosition = m_vecDest.back();
+		m_vPosition = m_vPosition + (m_vDirection * 0.1f);
+		D3DXVECTOR3 v = m_vecDest.back() - m_vPosition;
+		float len = D3DXVec3Length(&v);
 
-		if (m_vPosition == m_vFinalDest)
+		if (len <= 0.1f)
 		{
-			m_isDie = true;
-			return;
-		}
-		m_vecDest.pop_back();
 
-		if (m_vecDest.size() == 0)
-		{
-			m_isFindPath = false;
-			return;
+			m_vPosition = m_vecDest.back();
+
+			//int tileNum = g_pGameManager->GetStageOneTile()->FindArrForXZ(m_vecDest.back().x, m_vecDest.back().z);
+			//g_pGameManager->GetStageOneTile()->GetTileInfo()[tileNum].type = ST_TILE_INFO::NONE;
+
+			if (m_vPosition == m_stFinalDestTile.vecCenter)
+			{
+				m_isDie = true;
+				return;
+			}
+
+			m_vecDest.pop_back();
+
+			//tileNum = g_pGameManager->GetStageOneTile()->FindArrForXZ(m_vecDest.back().x, m_vecDest.back().z);
+			//g_pGameManager->GetStageOneTile()->GetTileInfo()[tileNum].type = ST_TILE_INFO::MONSTER;
+
+			if (m_vecDest.size() == 0)
+			{
+				//m_isFindPath = false;
+				return;
+			}
+			m_vDirection = m_vecDest.back() - m_vPosition;
+			D3DXVec3Normalize(&m_vDirection, &m_vDirection);
+
+			D3DXVECTOR3 zAxis(0, 0, 1);
+			m_fRotY = acosf(D3DXVec3Dot(&m_vDirection, &zAxis));
+			if (m_vDirection.x >= 0) m_fRotY += D3DX_PI;
+			else if (m_vDirection.x < 0) m_fRotY = -m_fRotY + D3DX_PI;
 		}
+
 		m_vDirection = m_vecDest.back() - m_vPosition;
 		D3DXVec3Normalize(&m_vDirection, &m_vDirection);
+	}
+}
 
-		D3DXVECTOR3 zAxis(0, 0, 1);
-		m_fRotY = acosf(D3DXVec3Dot(&m_vDirection, &zAxis));
-		if (m_vDirection.x >= 0) m_fRotY += D3DX_PI;
-		else if (m_vDirection.x < 0) m_fRotY = -m_fRotY + D3DX_PI;
+void cMonster::CheckTraceTime()
+{
+	if (m_isAttack) return;
+
+	m_nStartTime = GetTickCount();
+
+	if (m_nStartTime >= m_nEndTime)
+	{
+		m_eMonsterState = E_NONE;
+		m_isTrace = false;
+		m_isTraceForFinalDest = true;
+	}
+}
+
+void cMonster::TraceSeach()
+{
+	if (m_isAttack) return;
+
+	for (int i = 0; i < g_pGameManager->GetCharacter().size(); i++)
+	{
+		float dist = Distance_Between_Three_Points(g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter,
+			m_stTraceSphere.vCenter);
+
+		if (dist <= (m_stTraceSphere.fRadius
+			+ g_pGameManager->GetCharacter()[i]->GetHitCollider().fRadius))
+		{
+			int end = g_pGameManager->GetStageOneTile()->FindArrForXZ(
+				g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.x,
+				g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.z
+			);
+
+			ThreadResume();
+			m_isFindPath = false;
+			m_isTrace = true;
+			m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
+
+			m_nStartTime = GetTickCount();
+			m_nEndTime = GetTickCount() + 1000;
+
+			return;
+		}
 	}
 
-	m_vDirection = m_vecDest.back() - m_vPosition;
-	D3DXVec3Normalize(&m_vDirection, &m_vDirection);
+	if (m_isTraceForFinalDest)
+	{
+		ThreadResume();
+		m_isFindPath = false;
+		m_isTraceForFinalDest = false;
+		m_stEndTile = m_stFinalDestTile;
+	}
+}
+
+bool cMonster::AttackSearch()
+{
+	if (!m_isAttack)
+	{
+		for (int i = 0; i < g_pGameManager->GetCharacter().size(); i++)
+		{
+			float dist = Distance_Between_Three_Points(g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter,
+				m_stHitSphere.vCenter);
+
+			//두 점 사이의 거리 공식을 통해 몬스터 피격 범위와 캐릭터의 피격 범위가 충돌되었는지 파악
+			if (dist <= (m_stHitSphere.fRadius
+				+ g_pGameManager->GetCharacter()[i]->GetHitCollider().fRadius))
+			{
+				m_eMonsterState = E_ATTACK;
+				m_isAttack = true;
+				m_pSkinnedMesh->SetAnimationIndexBlend(1);
+
+				//몬스터 무기 범위와 캐릭터 피격 범위 사이의 거리를 구함
+				dist = Distance_Between_Three_Points(g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter,
+					m_stRWeaponSphere.vCenter);
+
+				//몬스터 무기 범위와 캐릭터 피격 범위가 충돌되었는지 파악
+				if (dist <= (m_stRWeaponSphere.fRadius
+					+ g_pGameManager->GetCharacter()[i]->GetHitCollider().fRadius))
+				{
+					//cout << "충돌됬으연" << endl;
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 void cMonster::Sphere_Render()
@@ -90,7 +196,7 @@ void cMonster::Sphere_Render()
 	D3DXMATRIXA16 matWorld, matT;
 	D3DXMatrixIdentity(&matWorld);
 
-	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	//g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 
 	D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y + 1.0f, m_vPosition.z);
 
@@ -109,30 +215,32 @@ void cMonster::Sphere_Render()
 	m_stHitSphere.vCenter.z = matWorld._43;
 
 	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
-	m_pAttackSphere->DrawSubset(0);
-	m_pTraceSphere->DrawSubset(0);
-	m_pHitSphere->DrawSubset(0);
+	//m_pAttackSphere->DrawSubset(0);
+	//m_pTraceSphere->DrawSubset(0);
+	//m_pHitSphere->DrawSubset(0);
 
 
 
-	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	//g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 }
 
 void cMonster::RWeaponSphere_Render(string name)
 {
 	ST_BONE* m_pBone = (ST_BONE*)D3DXFrameFind(m_pSkinnedMesh->GetRootFrame(), name.c_str());
-	D3DXMATRIXA16 matWorld, matS, matT;
+
+	D3DXMATRIXA16 matWorld, matS, matT,matR;
 	D3DXMatrixIdentity(&matWorld);
 
 	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 
 	D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y, m_vPosition.z);
 	D3DXMatrixScaling(&matS, m_vScale.x, m_vScale.y, m_vScale.z);
+	D3DXMatrixRotationY(&matR, m_fRotY);
 
-	matWorld = m_pBone->CombinedTransformationMatrix * matS * matT;
+	matWorld = m_pBone->CombinedTransformationMatrix;
 
-	m_stRWeaponSphere.vCenter.x = matWorld._41;
-	m_stRWeaponSphere.vCenter.y = matWorld._42;
+    m_stRWeaponSphere.vCenter.x = matWorld._41;
+    m_stRWeaponSphere.vCenter.y = matWorld._42;
 	m_stRWeaponSphere.vCenter.z = matWorld._43;
 
 	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
@@ -144,20 +252,24 @@ void cMonster::RWeaponSphere_Render(string name)
 void cMonster::LWeaponSphere_Render(string name)
 {
 	ST_BONE* m_pBone = (ST_BONE*)D3DXFrameFind(m_pSkinnedMesh->GetRootFrame(), name.c_str());
-	D3DXMATRIXA16 matWorld, matS, matT;
+	D3DXMATRIXA16 matWorld, matS, matT, matR;
 	D3DXMatrixIdentity(&matWorld);
 
-	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	//g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 
 	D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y, m_vPosition.z);
 	D3DXMatrixScaling(&matS, m_vScale.x, m_vScale.y, m_vScale.z);
-	m_stLWeaponSphere.vCenter = D3DXVECTOR3(m_vPosition.x, m_vPosition.y, m_vPosition.z);
+	D3DXMatrixRotationY(&matR, m_fRotY);
+
+	m_stLWeaponSphere.vCenter.x = matWorld._41;
+	m_stLWeaponSphere.vCenter.y = matWorld._42;
+	m_stLWeaponSphere.vCenter.z = matWorld._43;
 
 	matWorld = m_pBone->CombinedTransformationMatrix * matS * matT;
 	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
-	m_pLWeaponSphere->DrawSubset(0);
+	//m_pLWeaponSphere->DrawSubset(0);
 
-	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	//g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 }
 
 float cMonster::Distance_Between_Three_Points(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
@@ -199,50 +311,39 @@ void cMonster::StartThread()
 
 void cMonster::FindPath()
 {
-	int FindPathStartTime = GetTickCount();
-	int FindPathEndTime = GetTickCount() + 1000;
-
 	while (true)
 	{
-		WaitForSingleObject(g_pGameManager->m_hSem, INFINITE);
+
 		if (m_isDie) break;
 		if (m_isFindPath) continue;
 
-		FindPathStartTime = GetTickCount();
+		WaitForSingleObject(g_pGameManager->m_hSem, INFINITE);
 
-		if (FindPathStartTime >= FindPathEndTime)
-		{
-			FindPathEndTime = FindPathStartTime + 1000;
-			m_vecDest.clear();
+		m_vecDest.clear();
 
-			vector<ST_TILE_INFO> vecTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue();
+		vector<ST_TILE_INFO> vecTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue();
 
-			int start = g_pGameManager->GetStageOneTile()->FindArrForXZ(m_vPosition.x, m_vPosition.z);
-			int end = g_pGameManager->GetStageOneTile()->FindArr(m_stEndTile.idX, m_stEndTile.idY);
+		int start = g_pGameManager->GetStageOneTile()->FindArrForXZ(m_vPosition.x, m_vPosition.z);
+		int end = g_pGameManager->GetStageOneTile()->FindArr(m_stEndTile.idX, m_stEndTile.idY);
 
-			vecTile[start].aStarType = ST_TILE_INFO::START;
-			vecTile[end].aStarType = ST_TILE_INFO::END;
+		vecTile[start].aStarType = ST_TILE_INFO::START;
+		vecTile[end].aStarType = ST_TILE_INFO::END;
 
-			m_vecDest = m_pAStar->FindPath(vecTile);
+		m_vecDest = m_pAStar->FindPath(vecTile);
 
-			cout << m_vecDest.size() << endl;
+		m_isFindPath = true;
+		m_eMonsterState = E_NONE;
 
-			int n = m_vecDest.size();
+		m_vDirection = m_vecDest.back() - m_vPosition;
+		D3DXVec3Normalize(&m_vDirection, &m_vDirection);
 
-			//
-			m_isFindPath = true;
-			m_eMonsterState = E_NONE;
+		D3DXVECTOR3 zAxis(0, 0, 1);
+		m_fRotY = acosf(D3DXVec3Dot(&m_vDirection, &zAxis));
+		if (m_vDirection.x >= 0) m_fRotY += D3DX_PI;
+		else if (m_vDirection.x < 0) m_fRotY = -m_fRotY + D3DX_PI;
 
-			m_vDirection = m_vecDest.back() - m_vPosition;
-			D3DXVec3Normalize(&m_vDirection, &m_vDirection);
-
-			D3DXVECTOR3 zAxis(0, 0, 1);
-			m_fRotY = acosf(D3DXVec3Dot(&m_vDirection, &zAxis));
-			if (m_vDirection.x >= 0) m_fRotY += D3DX_PI;
-			else if (m_vDirection.x < 0) m_fRotY = -m_fRotY + D3DX_PI;
-			//
-		}
-		ReleaseSemaphore(g_pGameManager->m_hSem,1,NULL);
+		ReleaseSemaphore(g_pGameManager->m_hSem, 1, NULL);
+		StopThread();
 	}
 }
 
