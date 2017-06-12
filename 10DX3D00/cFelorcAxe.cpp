@@ -3,6 +3,7 @@
 
 #include "cSkinnedMesh.h"
 #include "cTile.h"
+#include "cCharacter.h"
 
 cFelorcAxe::cFelorcAxe()
 {
@@ -17,7 +18,7 @@ void cFelorcAxe::Setup()
 {
 	cMonster::Setup();
 
-	m_vScale = D3DXVECTOR3(2.0f, 2.0f, 2.0f);
+	m_vScale = D3DXVECTOR3(4.0f, 4.0f, 4.0f);
 	m_vPosition = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	//공격 범위 설정
@@ -39,9 +40,7 @@ void cFelorcAxe::Setup()
 	D3DXCreateSphere(g_pD3DDevice, m_stHitSphere.fRadius, 10, 10, &m_pHitSphere, NULL);
 
 	//펠오크 엑스 세팅
-	m_pSkinnedMesh = new cSkinnedMesh;
-	m_pSkinnedMesh->Setup("Model/Enemy/felorc_axe", "felorc_axe.x");
-
+	m_pSkinnedMesh = new cSkinnedMesh("Model/Enemy/felorc_axe/", "felorc_axe.X");
 
 	int start = 0;
 	for (int i = 0; i < g_pGameManager->GetStageOneTile()->GetTileInfo().size(); i++)
@@ -66,69 +65,102 @@ void cFelorcAxe::Setup()
 		}
 	}
 	m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
-
-	m_vFinalDest = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end].vecCenter;
+	m_stFinalDestTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
+	//m_vFinalDest = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end].vecCenter;
 
 	StartThread();
 }
 
 void cFelorcAxe::Update()
 {
+	if (m_isDie) return;
+
+	srand(time(NULL));
+
+	if (!AttackSearch())
+	{
+		if (!m_isTrace)
+			TraceSeach();
+		else if (m_isTrace)
+			CheckTraceTime();
+	}
+
 	D3DXMATRIXA16 matS, matR, matT;
 
-	if (!m_isDie)
+	//IDLE 상태 2가지 애니메이션 무작위 선택 [다음 애니메이션]
+	int n2 = rand() % 2 + 1;
+	int nAniTemp;
+
+	if (n2 == 1)
+		nAniTemp = 7;
+	else if (n2 == 2)
+		nAniTemp = 8;
+
+	switch (m_eMonsterState)
+	{
+	case E_IDLE:
+	{
+		//E_IDLE 상태 2가지 애니메이션 무작위 선택
+		int n = rand() % 2 + 1;
+		if (n == 1)
+			m_nAnimIndex = 7;
+		else if (n == 2)
+			m_nAnimIndex = 8;
+
+		if (m_pSkinnedMesh->SetNextAniMation(m_nAnimIndex, nAniTemp))
+			m_eMonsterState = E_IDLE;
+		break;
+	}
+	case E_ATTACK:
+	{
+		//E_ATTACK 상태 4가지 애니메이션 무작위 선택
+		if (m_pSkinnedMesh->AnimationClose(m_nAnimIndex))
+		{
+			m_eMonsterState = E_NONE;
+			m_isAttack = false;
+			m_isTrace = false;
+			m_isTraceForFinalDest = true;
+		}
+		break;
+	}
+	case E_NONE:
 	{
 		if (m_isFindPath)
 		{
-			cMonster::Update();
-
-			if (m_pSkinnedMesh)
-				m_pSkinnedMesh->Update();
-
-			m_vPosition = m_vPosition + (m_vDirection * 0.1f);
-
-			D3DXVECTOR3 v = m_vecDest.back() - m_vPosition;
-			float len = D3DXVec3Length(&v);
-
-			if (len <= 0.1f)
+			if (m_isGameStart)
 			{
+				if (m_pSkinnedMesh->SetNextAniMation(0, 0))
+					m_eMonsterState = E_NONE;
 
-				m_vPosition = m_vecDest.back();
-
-				if (m_vPosition == m_vFinalDest)
-				{
-					m_isDie = true;
-					return;
-				}
-
-				m_vecDest.pop_back();
-
-				if (m_vecDest.size() == 0)
-				{
-					m_isFindPath = false;
-					return;
-				}
-
-				m_vDirection = m_vecDest.back() - m_vPosition;
-				D3DXVec3Normalize(&m_vDirection, &m_vDirection);
-
-				D3DXVECTOR3 zAxis(0, 0, 1);
-				m_fRotY = acosf(D3DXVec3Dot(&m_vDirection, &zAxis));
-				if (m_vDirection.x >= 0) m_fRotY += D3DX_PI;
-				else if (m_vDirection.x < 0) m_fRotY = -m_fRotY + D3DX_PI;
+				Move();
 			}
-
-			m_vDirection = m_vecDest.back() - m_vPosition;
-			D3DXVec3Normalize(&m_vDirection, &m_vDirection);
-
 		}
-
-		D3DXMatrixScaling(&matS, 2.0f, 2.0f, 2.0f);
-		D3DXMatrixRotationY(&matR, m_fRotY);
-
-		D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y, m_vPosition.z);
-		m_matWorld = matS * matR * matT;
+		break;
 	}
+	case E_DEAD:
+	{
+		m_nAnimIndex = 6;
+		if (m_pSkinnedMesh->SetNextAniMation(m_nAnimIndex, nAniTemp))
+			m_isDie = true;
+		break;
+	}
+	case E_STUN:
+	{
+		m_nAnimIndex = 5;
+		if (m_pSkinnedMesh->SetNextAniMation(m_nAnimIndex, nAniTemp))
+			m_eMonsterState = E_IDLE;
+		break;
+	}
+	default:
+		m_eMonsterState = E_IDLE;
+		break;
+	}
+
+	D3DXMatrixScaling(&matS, m_vScale.x, m_vScale.y, m_vScale.z);
+	D3DXMatrixRotationY(&matR, m_fRotY);
+
+	D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y, m_vPosition.z);
+	m_matWorld = matS * matR * matT;
 }
 
 void cFelorcAxe::Render()
@@ -136,9 +168,55 @@ void cFelorcAxe::Render()
 	if (!m_isDie)
 	{
 		if (m_pSkinnedMesh)
-			m_pSkinnedMesh->Render(NULL, &m_matWorld);
+			m_pSkinnedMesh->UpdateAndRender(m_matWorld);
 
 		Sphere_Render();
 		RWeaponSphere_Render("felorc_axe_Bone103"); //오른쪽 무기 범위 표시
 	}
 }
+
+bool cFelorcAxe::AttackSearch()
+{
+	if (!m_isAttack)
+	{
+		for (int i = 0; i < g_pGameManager->GetCharacter().size(); i++)
+		{
+			float dist = Distance_Between_Three_Points(g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter,
+				m_stHitSphere.vCenter);
+
+			//두 점 사이의 거리 공식을 통해 몬스터 피격 범위와 캐릭터의 피격 범위가 충돌되었는지 파악
+			if (dist <= (m_stHitSphere.fRadius
+				+ g_pGameManager->GetCharacter()[i]->GetHitCollider().fRadius))
+			{
+				m_eMonsterState = E_ATTACK;
+				m_isAttack = true;
+
+				m_nAnimIndex = rand() % 4 + 1;
+				m_pSkinnedMesh->SetAnimationIndexBlend(m_nAnimIndex);
+
+				return true;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < g_pGameManager->GetCharacter().size(); i++)
+		{
+			//몬스터 무기 범위와 캐릭터 피격 범위 사이의 거리를 구함
+			float dist = Distance_Between_Three_Points(g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter,
+				m_stRWeaponSphere.vCenter);
+
+			//몬스터 무기 범위와 캐릭터 피격 범위가 충돌되었는지 파악
+			if (dist <= (m_stRWeaponSphere.fRadius
+				+ g_pGameManager->GetCharacter()[i]->GetHitCollider().fRadius))
+			{
+				//cout << "충돌됬으연" << endl;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+

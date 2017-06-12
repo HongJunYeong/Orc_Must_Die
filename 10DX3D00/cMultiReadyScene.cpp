@@ -352,6 +352,8 @@ void cMultiReadyScene::ChangeCount()
 				CloseHandle(m_hRecvThread);
 			}
 
+			Sleep(1000);
+
 			g_pSceneManager->SetCurrentScene("LoadingScene");
 			return;
 		}
