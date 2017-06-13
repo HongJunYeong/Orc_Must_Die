@@ -105,12 +105,15 @@ void cMainGame::Setup()
 	pMultiReadyScene->Setup();
 	g_pSceneManager->AddScene("MultiReadyScene", pMultiReadyScene);
 
-	cLoadingScene * pLoadingScene = new cLoadingScene;
-	pLoadingScene->Setup();
-	g_pSceneManager->AddScene("LoadingScene", pLoadingScene);
+	//cLoadingScene * pLoadingScene = new cLoadingScene;
+	//pLoadingScene->Setup();
+	//g_pSceneManager->AddScene("LoadingScene", pLoadingScene);
 
 	g_pSkinnedMeshManager->AddSkinnedMesh("Model/Enemy/felorc_axe/", "felorc_axe.x");
-	//g_pObjectManager->AddMapObject("Model/Enemy/felorc_axe", "felorc_axe.x","felorc_axe");
+	g_pSkinnedMeshManager->AddSkinnedMesh("Model/Enemy/felorc_sword/", "felorc_sword.x");
+	g_pSkinnedMeshManager->AddSkinnedMesh("Model/Enemy/felorcdire/", "felorcdire.x");
+	g_pSkinnedMeshManager->AddSkinnedMesh("Model/Enemy/felorcwarriorboss/", "felorcwarriorboss.x");
+	g_pSkinnedMeshManager->AddSkinnedMesh("Model/Enemy/felorcwarriorsword/", "felorcwarriorsword.x");
 
 }
 

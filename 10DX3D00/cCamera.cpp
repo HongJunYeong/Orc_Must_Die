@@ -62,6 +62,11 @@ void cCamera::Update()
 	g_pD3DDevice->SetTransform(D3DTS_VIEW, &matView);
 }
 
+void cCamera::SetTarget(D3DXVECTOR3 * pvTarget)
+{
+	m_pvTarget = pvTarget;
+}
+
 void cCamera::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)

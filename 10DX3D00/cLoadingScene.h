@@ -16,6 +16,8 @@ private:
 	float			m_fGearRotZ;
 
 	bool			m_isLoadSuccess;
+
+	LPD3DXSPRITE	m_pSprite;
 public:
 	virtual void Setup() override;
 	virtual void Update() override;

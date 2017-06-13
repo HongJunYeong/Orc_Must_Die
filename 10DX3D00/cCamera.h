@@ -20,6 +20,8 @@ public :
 	void Setup(D3DXVECTOR3* pvTarget);
 	void Update();
 
+	void SetTarget(D3DXVECTOR3* pvTarget);
+
 	void WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam); 
 
 

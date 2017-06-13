@@ -3,6 +3,7 @@
 #define g_pGameManager cGameManager::GetInstance() 
 
 class cMonster;
+class cCharacter;
 class cTile;
 
 class cGameManager
@@ -14,6 +15,7 @@ private:
 
 	string				m_sPlayerName;
 	vector<cMonster*>	m_vecMonster;
+	vector<cCharacter*>	m_vecCharacter;
 
 	cTile*				m_pStageOneTile;
 public:
@@ -34,5 +36,7 @@ public:
 	void StageOneSetup();
 	void StageOneUpdate();
 	void StageOneRender();
+
+	vector<cCharacter*>& GetCharacter() { return m_vecCharacter; }
 };
 

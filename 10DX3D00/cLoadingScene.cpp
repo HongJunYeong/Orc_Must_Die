@@ -20,16 +20,26 @@ void cLoadingScene::Setup()
 	Setup_UI();
 	m_isLoadSuccess = false;
 	m_fGearRotZ = 0.0f;
-	m_hLoadThread = (HANDLE)_beginthreadex(NULL, 0, LoadingThread, this, CREATE_SUSPENDED, NULL);
+	//m_hLoadThread = (HANDLE)_beginthreadex(NULL, 0, LoadingThread, this, 0, NULL);
+
 	cScene::Setup();
 }
 
 void cLoadingScene::Update()
 {
-	if (m_nScreenChangeAlpha == 250)
-	{
-		ResumeThread(m_hLoadThread);
-	}
+	//if (m_nScreenChangeAlpha == 255)
+	//{
+	//	ResumeThread(m_hLoadThread);
+	//}
+
+	cStageOneScene* pStageOneScene = new cStageOneScene;
+	pStageOneScene->Setup();
+
+	g_pGameManager->StageOneTileSetup();
+	g_pGameManager->StageOneSetup();
+
+	g_pSceneManager->AddScene("StageOneScene", pStageOneScene);
+	g_pSceneManager->SetCurrentScene("StageOneScene");
 
 	m_fGearRotZ += 0.01f;
 	m_pGearImage->SetRotZ(m_fGearRotZ);
@@ -38,8 +48,6 @@ void cLoadingScene::Update()
 		m_pGearImage->Update();
 
 	cScene::Update();
-
-	cout << GetTickCount() << endl;
 }
 
 void cLoadingScene::Render(LPD3DXSPRITE pSprite)
