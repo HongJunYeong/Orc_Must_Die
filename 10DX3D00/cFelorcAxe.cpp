@@ -18,17 +18,20 @@ void cFelorcAxe::Setup()
 {
 	cMonster::Setup();
 
+	//펠오크 엑스 세팅
+	m_pSkinnedMesh = new cSkinnedMesh("Model/Enemy/felorc_axe/", "felorc_axe.x");
+
 	m_vScale = D3DXVECTOR3(4.0f, 4.0f, 4.0f);
 	m_vPosition = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	//공격 범위 설정
-	m_stAttackSphere.fRadius = 2.0f;
+	m_stAttackSphere.fRadius = 4.0f;
 	//탐지 범위 설정
-	m_stTraceSphere.fRadius = 5.0f;
+	m_stTraceSphere.fRadius = 10.0f;
 	//오른쪽 무기 범위 설정
 	m_stRWeaponSphere.fRadius = 0.5f;
 	//피격 범위 설정
-	m_stHitSphere.fRadius = 1.2f;
+	m_stHitSphere.fRadius = 2.4f;
 
 	//공격 범위 표시용 원 설정
 	D3DXCreateSphere(g_pD3DDevice, m_stAttackSphere.fRadius, 10, 10, &m_pAttackSphere, NULL);
@@ -38,9 +41,6 @@ void cFelorcAxe::Setup()
 	D3DXCreateSphere(g_pD3DDevice, m_stRWeaponSphere.fRadius, 10, 10, &m_pRWeaponSphere, NULL);
 	//피격 범위 표시용 원 설정
 	D3DXCreateSphere(g_pD3DDevice, m_stHitSphere.fRadius, 10, 10, &m_pHitSphere, NULL);
-
-	//펠오크 엑스 세팅
-	m_pSkinnedMesh = new cSkinnedMesh("Model/Enemy/felorc_axe/", "felorc_axe.X");
 
 	int start = 0;
 	for (int i = 0; i < g_pGameManager->GetStageOneTile()->GetTileInfo().size(); i++)
@@ -66,9 +66,15 @@ void cFelorcAxe::Setup()
 	}
 	m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
 	m_stFinalDestTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
-	//m_vFinalDest = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end].vecCenter;
 
 	StartThread();
+
+	int n = rand() % 2 + 1;
+	if (n == 1)
+		m_nAnimIndex = 7;
+	else if (n == 2)
+		m_nAnimIndex = 8;
+	m_pSkinnedMesh->SetAnimationIndexBlend(m_nAnimIndex);
 }
 
 void cFelorcAxe::Update()

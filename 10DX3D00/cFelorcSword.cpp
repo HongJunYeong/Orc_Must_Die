@@ -19,6 +19,9 @@ void cFelorcSword::Setup()
 {
 	cMonster::Setup();
 
+	//펠오크 스워드 세팅
+	m_pSkinnedMesh = new cSkinnedMesh("Model/Enemy/felorc_sword/", "felorc_sword.x");
+
 	m_vScale = D3DXVECTOR3(4.0f, 4.0f, 4.0f);
 	m_vPosition = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
@@ -39,9 +42,6 @@ void cFelorcSword::Setup()
 	D3DXCreateSphere(g_pD3DDevice, m_stRWeaponSphere.fRadius, 10, 10, &m_pRWeaponSphere, NULL);
 	//피격 범위 표시용 원 설정
 	D3DXCreateSphere(g_pD3DDevice, m_stHitSphere.fRadius, 10, 10, &m_pHitSphere, NULL);
-
-	//펠오크 스워드 세팅
-	m_pSkinnedMesh = new cSkinnedMesh("Model/Enemy/felorc_sword/", "felorc_sword.x");
 
 	int start = 0;
 	for (int i = 0; i < g_pGameManager->GetStageOneTile()->GetTileInfo().size(); i++)
@@ -66,7 +66,8 @@ void cFelorcSword::Setup()
 		}
 	}
 	m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
-	//m_vFinalDest = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end].vecCenter;
+	m_stFinalDestTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
+
 	StartThread();
 
 	int n = rand() % 2 + 1;

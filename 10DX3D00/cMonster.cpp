@@ -38,13 +38,13 @@ void cMonster::Setup()
 	m_isAttack = false;
 	m_isTrace = false;
 	m_isTraceForFinalDest = false;
+	m_isAggro = false;
+	m_nAggroCharIdx = 0;
 
 	m_nAnimIndex = 0;
 
 	int end = g_pGameManager->GetStageOneTile()->FindArrForTileType(ST_TILE_INFO::DEST);
 	m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
-
-	m_hMutex = m_hMutex = CreateMutex(NULL, FALSE, NULL);
 }
 
 void cMonster::Update()
@@ -71,9 +71,6 @@ void cMonster::Move()
 
 			m_vPosition = m_vecDest.back();
 
-			//int tileNum = g_pGameManager->GetStageOneTile()->FindArrForXZ(m_vecDest.back().x, m_vecDest.back().z);
-			//g_pGameManager->GetStageOneTile()->GetTileInfo()[tileNum].type = ST_TILE_INFO::NONE;
-
 			if (m_vPosition == m_stFinalDestTile.vecCenter)
 			{
 				m_isDie = true;
@@ -82,12 +79,8 @@ void cMonster::Move()
 
 			m_vecDest.pop_back();
 
-			//tileNum = g_pGameManager->GetStageOneTile()->FindArrForXZ(m_vecDest.back().x, m_vecDest.back().z);
-			//g_pGameManager->GetStageOneTile()->GetTileInfo()[tileNum].type = ST_TILE_INFO::MONSTER;
-
 			if (m_vecDest.size() == 0)
 			{
-				//m_isFindPath = false;
 				return;
 			}
 			m_vDirection = m_vecDest.back() - m_vPosition;
@@ -118,6 +111,27 @@ void cMonster::CheckTraceTime()
 	}
 }
 
+int cMonster::FindArrForXZ(float x, float z)
+{
+	int nCellsPerCol = NUM_TILE - 1;
+	int nCellsPerRow = NUM_TILE - 1;
+	x = ((float)nCellsPerCol / 2.0f) + x;
+	z = ((float)nCellsPerRow / 2.0f) - z;
+
+	x /= 1.0f;
+	z /= 1.0f;
+
+	int col = floorf(x);
+	int row = floorf(z);
+
+	return col * NUM_TILE + row + 1;
+}
+
+int cMonster::FindArr(int idX, int idY)
+{
+	return idY * NUM_TILE + idX + 1;
+}
+
 void cMonster::TraceSeach()
 {
 	if (m_isAttack) return;
@@ -130,64 +144,81 @@ void cMonster::TraceSeach()
 		if (dist <= (m_stTraceSphere.fRadius
 			+ g_pGameManager->GetCharacter()[i]->GetHitCollider().fRadius))
 		{
-			int end = g_pGameManager->GetStageOneTile()->FindArrForXZ(
-				g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.x,
-				g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.z
-			);
 
-			ThreadResume();
-			m_isFindPath = false;
-			m_isTrace = true;
-			m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
+			if (m_isAggro && m_nAggroCharIdx == i)
+			{
+				int end = g_pGameManager->GetStageOneTile()->FindArrForXZ(
+					g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.x,
+					g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.z
+				);
+				m_isFindPath = false;
+				m_isTrace = true;
+				m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
 
-			m_nStartTime = GetTickCount();
-			m_nEndTime = GetTickCount() + 1000;
+				ThreadResume();
+
+				m_nStartTime = GetTickCount();
+				m_nEndTime = GetTickCount() + 1500;
+			}
+			else if (m_isAggro && m_nAggroCharIdx != i)
+			{
+				int end = g_pGameManager->GetStageOneTile()->FindArrForXZ(
+					g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.x,
+					g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.z
+				);
+				m_nAggroCharIdx = i;
+				m_isFindPath = false;
+				m_isTrace = true;
+				m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
+
+				ThreadResume();
+
+				m_nStartTime = GetTickCount();
+				m_nEndTime = GetTickCount() + 1500;
+			}
+			else if (!m_isAggro)
+			{
+				if (g_pGameManager->GetCharacter()[i]->m_nStackAggro >= 3) continue;
+
+				int end = g_pGameManager->GetStageOneTile()->FindArrForXZ(
+					g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.x,
+					g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter.z
+				);
+				g_pGameManager->GetCharacter()[i]->m_nStackAggro++;
+				m_nAggroCharIdx = i;
+				m_isAggro = true;
+				m_isFindPath = false;
+				m_isTrace = true;
+				m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
+
+				ThreadResume();
+
+				m_nStartTime = GetTickCount();
+				m_nEndTime = GetTickCount() + 1500;
+			}
 
 			return;
 		}
 	}
+	
+	if (m_isAggro)
+	{
+		g_pGameManager->GetCharacter()[m_nAggroCharIdx]->m_nStackAggro--;
+		m_isAggro = false;
+	}
 
 	if (m_isTraceForFinalDest)
 	{
-		ThreadResume();
 		m_isFindPath = false;
 		m_isTraceForFinalDest = false;
 		m_stEndTile = m_stFinalDestTile;
+
+		ThreadResume();
 	}
 }
 
 bool cMonster::AttackSearch()
 {
-	if (!m_isAttack)
-	{
-		for (int i = 0; i < g_pGameManager->GetCharacter().size(); i++)
-		{
-			float dist = Distance_Between_Three_Points(g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter,
-				m_stHitSphere.vCenter);
-
-			//두 점 사이의 거리 공식을 통해 몬스터 피격 범위와 캐릭터의 피격 범위가 충돌되었는지 파악
-			if (dist <= (m_stHitSphere.fRadius
-				+ g_pGameManager->GetCharacter()[i]->GetHitCollider().fRadius))
-			{
-				m_eMonsterState = E_ATTACK;
-				m_isAttack = true;
-				m_pSkinnedMesh->SetAnimationIndexBlend(1);
-
-				//몬스터 무기 범위와 캐릭터 피격 범위 사이의 거리를 구함
-				dist = Distance_Between_Three_Points(g_pGameManager->GetCharacter()[i]->GetHitCollider().vCenter,
-					m_stRWeaponSphere.vCenter);
-
-				//몬스터 무기 범위와 캐릭터 피격 범위가 충돌되었는지 파악
-				if (dist <= (m_stRWeaponSphere.fRadius
-					+ g_pGameManager->GetCharacter()[i]->GetHitCollider().fRadius))
-				{
-					//cout << "충돌됬으연" << endl;
-					return true;
-				}
-			}
-		}
-	}
-
 	return false;
 }
 
@@ -196,9 +227,9 @@ void cMonster::Sphere_Render()
 	D3DXMATRIXA16 matWorld, matT;
 	D3DXMatrixIdentity(&matWorld);
 
-	//g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 
-	D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y + 1.0f, m_vPosition.z);
+	D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y + 2.0f, m_vPosition.z);
 
 	matWorld = matT;
 
@@ -221,7 +252,7 @@ void cMonster::Sphere_Render()
 
 
 
-	//g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 }
 
 void cMonster::RWeaponSphere_Render(string name)
@@ -232,10 +263,6 @@ void cMonster::RWeaponSphere_Render(string name)
 	D3DXMatrixIdentity(&matWorld);
 
 	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-
-	D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y, m_vPosition.z);
-	D3DXMatrixScaling(&matS, m_vScale.x, m_vScale.y, m_vScale.z);
-	D3DXMatrixRotationY(&matR, m_fRotY);
 
 	matWorld = m_pBone->CombinedTransformationMatrix;
 
@@ -255,21 +282,19 @@ void cMonster::LWeaponSphere_Render(string name)
 	D3DXMATRIXA16 matWorld, matS, matT, matR;
 	D3DXMatrixIdentity(&matWorld);
 
-	//g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 
-	D3DXMatrixTranslation(&matT, m_vPosition.x, m_vPosition.y, m_vPosition.z);
-	D3DXMatrixScaling(&matS, m_vScale.x, m_vScale.y, m_vScale.z);
-	D3DXMatrixRotationY(&matR, m_fRotY);
 
 	m_stLWeaponSphere.vCenter.x = matWorld._41;
 	m_stLWeaponSphere.vCenter.y = matWorld._42;
 	m_stLWeaponSphere.vCenter.z = matWorld._43;
 
-	matWorld = m_pBone->CombinedTransformationMatrix * matS * matT;
-	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
-	//m_pLWeaponSphere->DrawSubset(0);
+	matWorld = m_pBone->CombinedTransformationMatrix;
 
-	//g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+	g_pD3DDevice->SetTransform(D3DTS_WORLD, &matWorld);
+	m_pLWeaponSphere->DrawSubset(0);
+
+	g_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 }
 
 float cMonster::Distance_Between_Three_Points(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
@@ -280,7 +305,6 @@ float cMonster::Distance_Between_Three_Points(D3DXVECTOR3 v1, D3DXVECTOR3 v2)
 	float z = pow(v1.z - v2.z, 2);
 
 	return dDistance = sqrt(x + y + z);
-
 }
 
 
@@ -314,7 +338,7 @@ void cMonster::FindPath()
 	while (true)
 	{
 
-		if (m_isDie) break;
+		if (m_isDie) StopThread();
 		if (m_isFindPath) continue;
 
 		WaitForSingleObject(g_pGameManager->m_hSem, INFINITE);
@@ -323,8 +347,21 @@ void cMonster::FindPath()
 
 		vector<ST_TILE_INFO> vecTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue();
 
-		int start = g_pGameManager->GetStageOneTile()->FindArrForXZ(m_vPosition.x, m_vPosition.z);
-		int end = g_pGameManager->GetStageOneTile()->FindArr(m_stEndTile.idX, m_stEndTile.idY);
+		int start = FindArrForXZ(m_vPosition.x, m_vPosition.z);
+		int end = FindArr(m_stEndTile.idX, m_stEndTile.idY);
+
+		if ((vecTile[start].idX == vecTile[end].idX) &&
+			vecTile[start].idY == vecTile[end].idY)
+		{
+			m_isFindPath = true;
+			m_isAttack = false;
+			m_eMonsterState = E_NONE;
+
+			ReleaseSemaphore(g_pGameManager->m_hSem, 1, NULL);
+			StopThread();
+
+			return;
+		}
 
 		vecTile[start].aStarType = ST_TILE_INFO::START;
 		vecTile[end].aStarType = ST_TILE_INFO::END;

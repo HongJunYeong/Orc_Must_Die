@@ -19,6 +19,9 @@ void cFelorcDire::Setup()
 {
 	cMonster::Setup();
 
+	m_vScale = D3DXVECTOR3(3.0f, 3.0f, 3.0f);
+	m_vPosition = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
 	//공격 범위 설정
 	m_stAttackSphere.fRadius = 5.0f;
 	//탐지 범위 설정
@@ -63,14 +66,12 @@ void cFelorcDire::Setup()
 		}
 	}
 	m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
-	//m_vFinalDest = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end].vecCenter;
+	m_stFinalDestTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
+
 	StartThread();
 
 	m_nAnimIndex = 4;
 	m_pSkinnedMesh->SetAnimationIndexBlend(m_nAnimIndex);
-
-	m_vScale = D3DXVECTOR3(3.0f, 3.0f, 3.0f);
-	m_vPosition = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 }
 
 void cFelorcDire::Update()
@@ -153,6 +154,7 @@ void cFelorcDire::Render()
 
 		if (m_pSkinnedMesh)
 			m_pSkinnedMesh->UpdateAndRender(m_matWorld);
+
 		Sphere_Render(); //탐지, 공격, 피격 범위 표시
 		RWeaponSphere_Render("felorcdire_Bone23"); //오른쪽 무기 범위 표시
 	}

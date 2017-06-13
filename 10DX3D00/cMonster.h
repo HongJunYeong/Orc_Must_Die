@@ -61,10 +61,13 @@ protected:
 	bool				m_isTrace;
 	bool				m_isTraceForFinalDest;
 	bool				m_isAttack;
+	bool				m_isAggro;
+
 	float				m_fHP;
 
 	int					m_nStartTime;
 	int					m_nEndTime;
+	int					m_nAggroCharIdx;
 public:
 	virtual void Setup();
 	virtual void Update();
@@ -82,6 +85,9 @@ public:
 	virtual void Move();
 
 	virtual void CheckTraceTime();
+
+	virtual int FindArrForXZ(float x, float z);
+	virtual int FindArr(int idX, int idY);
 
 	virtual void TraceSeach();
 	virtual bool AttackSearch();

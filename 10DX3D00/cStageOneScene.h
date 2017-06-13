@@ -17,6 +17,8 @@ private:
 	LPD3DXMESH						m_pObjMesh;
 	vector<cMtlTex*>				m_vecObjMtlTex;
 
+	D3DMATERIAL9					m_stMtl;
+
 public:
 	virtual void Setup() override;
 	virtual void Update() override;

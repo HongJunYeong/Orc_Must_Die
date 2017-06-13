@@ -70,7 +70,8 @@ void cFelorcWarriorBoss::Setup()
 		}
 	}
 	m_stEndTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
-	//m_vFinalDest =g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end].vecCenter;
+	m_stFinalDestTile = g_pGameManager->GetStageOneTile()->GetTileInfoValue()[end];
+
 	StartThread();
 
 	int n = rand() % 3 + 1;

@@ -112,6 +112,11 @@ void cStageOneScene::Setup()
 			fclose(fp);
 		}
 	}
+
+	ZeroMemory(&m_stMtl, sizeof(D3DMATERIAL9));
+	m_stMtl.Ambient = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+	m_stMtl.Diffuse = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+	m_stMtl.Specular = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
 }
 
 void cStageOneScene::Update()
@@ -122,7 +127,7 @@ void cStageOneScene::Update()
 void cStageOneScene::Render(LPD3DXSPRITE pSprite)
 {
 	{
-		g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, false);
+		//g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, false);
 		ObjRender();
 
 		D3DXMATRIXA16 matT, matS, matR, matWorld;
@@ -139,11 +144,12 @@ void cStageOneScene::Render(LPD3DXSPRITE pSprite)
 
 		for (size_t i = 0; i < m_vecObjMtlTex.size(); i++)
 		{
-			g_pD3DDevice->SetMaterial(&m_vecObjMtlTex[i]->GetMaterial());
+			//g_pD3DDevice->SetMaterial(&m_vecObjMtlTex[i]->GetMaterial());
+			g_pD3DDevice->SetMaterial(&m_stMtl);
 			g_pD3DDevice->SetTexture(0, m_vecObjMtlTex[i]->GetTexture());
 			m_pObjMesh->DrawSubset(i);
 		}
-		g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, true);
+		//g_pD3DDevice->SetRenderState(D3DRS_LIGHTING, true);
 	}
 	g_pGameManager->StageOneRender();
 }
@@ -283,7 +289,9 @@ void cStageOneScene::ObjRender()
 			{
 				g_pD3DDevice->SetTexture(0, objInfo._pMeshTextures[i]);
 			}
-		    else g_pD3DDevice->SetMaterial(&objInfo._pMeshMaterials[i]);
+		    else 
+				//g_pD3DDevice->SetMaterial(&objInfo._pMeshMaterials[i]);
+				g_pD3DDevice->SetMaterial(&m_stMtl);
 
 			objInfo._pMesh->DrawSubset(i);
 		}

@@ -3,6 +3,7 @@
 #define g_pObjectManager cObjectManager::GetInstance() //
 
 class cObject;
+class cSkinnedMesh;
 
 class cObjectManager
 {
@@ -10,14 +11,13 @@ private:
 	SINGLETONE(cObjectManager);
 
 	set<cObject*> m_setObject;
-
 public:
-	inline void AddObject(cObject* pObjcet)
+	inline void AddSetObject(cObject* pObjcet)
 	{
 		m_setObject.insert(pObjcet);
 	}
 
-	inline void RemoveObject(cObject* pObject)
+	inline void RemoveSetObject(cObject* pObject)
 	{
 		m_setObject.erase(pObject);
 	}
@@ -26,6 +26,9 @@ public:
 	{
 		m_setObject.clear();
 	}
+
+	
+	
 
 };
 

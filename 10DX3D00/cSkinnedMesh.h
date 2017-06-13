@@ -18,6 +18,8 @@ private:
 	LPD3DXANIMATIONCONTROLLER	m_pAnimController;
 	D3DXVECTOR3					m_vPosition;
 
+	D3DMATERIAL9				m_stMtl;
+
 	float m_fBlendTime;
 	float m_fPassedBlendTime;
 	bool  m_isAnimBlend;
